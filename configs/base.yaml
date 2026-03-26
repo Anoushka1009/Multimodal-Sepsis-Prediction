@@ -1,0 +1,305 @@
+project:
+  name: multimodal-early-sepsis
+  seed: 42
+  timezone: "UTC"
+
+paths:
+  project_root: "."
+  data_root: "data"
+  raw_data_dir: "data/raw"
+  extracted_data_dir: "data/mimiciii"
+  interim_data_dir: "results/intermediate"
+  processed_data_dir: "results/processed"
+  figures_dir: "figures"
+  tables_dir: "results/tables"
+  logs_dir: "results/logs"
+  manifests_dir: "results/manifests"
+
+dataset:
+  default_local_zip_path: "mimic.zip"
+  zip_filename_patterns:
+    - "mimic"
+    - "MIMIC"
+  required_tables:
+    - "PATIENTS.csv"
+    - "ADMISSIONS.csv"
+    - "ICUSTAYS.csv"
+    - "CHARTEVENTS.csv"
+    - "LABEVENTS.csv"
+    - "NOTEEVENTS.csv"
+    - "PRESCRIPTIONS.csv"
+    - "MICROBIOLOGYEVENTS.csv"
+  optional_tables:
+    - "INPUTEVENTS_MV.csv"
+    - "INPUTEVENTS_CV.csv"
+    - "OUTPUTEVENTS.csv"
+    - "PROCEDUREEVENTS_MV.csv"
+    - "D_ITEMS.csv"
+    - "D_LABITEMS.csv"
+  chunksize: 100000
+  low_memory: true
+
+colab:
+  drive_mount_point: "/content/drive"
+  project_workdir: "/content/multimodal-early-sepsis"
+  default_drive_search_root: "/content/drive/MyDrive"
+
+notes:
+  categories:
+    - "Physician"
+    - "Nursing"
+    - "Radiology"
+  text_column: "TEXT"
+  time_column: "CHARTTIME"
+
+prediction:
+  horizons_hours:
+    - 6
+    - 12
+    - 24
+
+training:
+  test_size: 0.15
+  val_size: 0.15
+
+exploration:
+  preview_rows: 5
+  missingness_sample_rows: 50000
+  note_category_top_k: 15
+  key_tables:
+    - "PATIENTS.csv"
+    - "ADMISSIONS.csv"
+    - "ICUSTAYS.csv"
+    - "NOTEEVENTS.csv"
+    - "CHARTEVENTS.csv"
+    - "LABEVENTS.csv"
+    - "PRESCRIPTIONS.csv"
+    - "MICROBIOLOGYEVENTS.csv"
+  cohort_id_columns:
+    - "SUBJECT_ID"
+    - "HADM_ID"
+    - "ICUSTAY_ID"
+
+cohort:
+  adult_age_min: 18
+  min_icu_los_hours: 6
+  patient_split_random_state: 42
+  first_icu_only: false
+
+sepsis3:
+  suspicion_window:
+    culture_after_antibiotic_hours: 24
+    antibiotic_after_culture_hours: 72
+  onset_window:
+    sofa_before_suspicion_hours: 48
+    sofa_after_suspicion_hours: 24
+  baseline_window_hours: 24
+  sofa_delta_threshold: 2
+  antibiotic_keywords:
+    - "cillin"
+    - "cef"
+    - "ceph"
+    - "mycin"
+    - "penem"
+    - "floxacin"
+    - "cycline"
+    - "sulfameth"
+    - "trimeth"
+    - "vancomycin"
+    - "piperacillin"
+    - "tazobactam"
+    - "meropenem"
+    - "imipenem"
+  vasopressor_keywords:
+    - "norepinephrine"
+    - "epinephrine"
+    - "vasopressin"
+    - "phenylephrine"
+    - "dopamine"
+    - "dobutamine"
+  lab_item_keywords:
+    platelet:
+      - "platelet"
+    bilirubin:
+      - "bilirubin"
+    creatinine:
+      - "creatinine"
+    pao2:
+      - "po2"
+      - "pao2"
+  chart_item_keywords:
+    map:
+      - "mean arterial"
+      - "arterial pressure mean"
+      - "arterial bp mean"
+      - "nbp mean"
+      - "art mean"
+      - "bp cuff [mean]"
+      - "manual bp mean"
+      - "femoral abp mean"
+    gcs_total:
+      - "glasgow coma scale total"
+      - "gcs total"
+    fio2:
+      - "fio2"
+      - "inspired o2 fraction"
+    urine_output:
+      - "urine output"
+
+feature_engineering:
+  hourly_window_hours: 1
+  history_window_hours: 48
+  min_history_hours: 6
+  aggregate_functions:
+    - mean
+    - min
+    - max
+    - last
+  chart_feature_keywords:
+    heart_rate:
+      - "heart rate"
+    sbp:
+      - "arterial blood pressure systolic"
+      - "non invasive blood pressure systolic"
+      - "systolic blood pressure"
+    dbp:
+      - "arterial blood pressure diastolic"
+      - "non invasive blood pressure diastolic"
+      - "diastolic blood pressure"
+    map:
+      - "mean arterial"
+      - "arterial pressure mean"
+      - "arterial bp mean"
+      - "nbp mean"
+      - "art mean"
+      - "bp cuff [mean]"
+      - "manual bp mean"
+      - "femoral abp mean"
+    respiratory_rate:
+      - "respiratory rate"
+    temperature_c:
+      - "temperature c"
+      - "temp c"
+    spo2:
+      - "spo2"
+      - "o2 saturation pulseoxymetry"
+    glucose_chart:
+      - "glucose"
+  lab_feature_keywords:
+    wbc:
+      - "white blood cells"
+      - "wbc"
+    hemoglobin:
+      - "hemoglobin"
+    creatinine:
+      - "creatinine"
+    platelet:
+      - "platelet"
+    bilirubin:
+      - "bilirubin"
+    lactate:
+      - "lactate"
+    sodium:
+      - "sodium"
+    potassium:
+      - "potassium"
+    bicarbonate:
+      - "bicarbonate"
+    bun:
+      - "urea nitrogen"
+      - "bun"
+
+text_processing:
+  note_categories:
+    - "Physician"
+    - "Nursing"
+    - "Radiology"
+  max_notes_per_stay: 200
+  max_note_characters: 4000
+  min_note_characters: 20
+  aggregation_window_hours: 6
+  pretrained_text_model_name: "emilyalsentzer/Bio_ClinicalBERT"
+  embedding_backend: "auto"
+  tokenizer_max_length: 128
+  embedding_batch_size: 8
+  local_files_only: false
+  note_columns:
+    - "ROW_ID"
+    - "SUBJECT_ID"
+    - "HADM_ID"
+    - "CHARTDATE"
+    - "CHARTTIME"
+    - "STORETIME"
+    - "CATEGORY"
+    - "DESCRIPTION"
+    - "TEXT"
+
+baselines:
+  models:
+    - logistic_regression
+    - random_forest
+    - xgboost
+  tabular_aggregations:
+    - mean
+    - min
+    - max
+    - last
+  imputation_strategy: median
+  random_state: 42
+  logistic_regression:
+    max_iter: 1000
+    class_weight: balanced
+  random_forest:
+    n_estimators: 300
+    max_depth: 12
+    min_samples_leaf: 5
+    class_weight: balanced_subsample
+  xgboost:
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+
+multimodal:
+  batch_size: 16
+  hidden_dim: 128
+  dropout: 0.2
+  learning_rate: 0.0005
+  epochs: 10
+  device: auto
+  weight_decay: 0.0001
+  gradient_clip_norm: 1.0
+  max_structured_steps: 48
+  max_text_windows: 8
+  max_tokens_per_window: 128
+  text_embedding_dim: 768
+  structured_encoder: gru
+  fusion_strategies:
+    - early_fusion
+    - late_fusion
+    - gated_fusion
+    - cross_modal_attention
+
+evaluation:
+  default_threshold: 0.5
+  calibration_bins: 10
+
+ablation:
+  executable_variants:
+    - vitals_only
+    - vitals_labs
+    - structured_full
+  planned_variants:
+    - vitals_only
+    - vitals_labs
+    - structured_full
+    - text_only
+    - multimodal_fusion
+  baseline_models:
+    - logistic_regression
+
+explainability:
+  top_k_features: 20
+  top_k_phrases: 10
+  shap_sample_size: 200
