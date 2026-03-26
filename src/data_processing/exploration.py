@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import warnings
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 import pandas as pd
+from pandas.errors import DtypeWarning
 
 from .io import iter_table_chunks, load_table
 
@@ -13,18 +16,26 @@ def _safe_value_count(series: pd.Series, top_k: int = 10) -> Dict[str, int]:
     return {str(index): int(value) for index, value in counts.items()}
 
 
+@contextmanager
+def _suppress_dtype_warning():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DtypeWarning)
+        yield
+
+
 def infer_schema_preview(
     extracted_dir: str | Path,
     table_name: str,
     preview_rows: int = 5,
     low_memory: bool = True,
 ) -> pd.DataFrame:
-    preview = load_table(
-        extracted_dir=extracted_dir,
-        table_name=table_name,
-        nrows=preview_rows,
-        low_memory=low_memory,
-    )
+    with _suppress_dtype_warning():
+        preview = load_table(
+            extracted_dir=extracted_dir,
+            table_name=table_name,
+            nrows=preview_rows,
+            low_memory=low_memory,
+        )
     rows = []
     for column in preview.columns:
         rows.append(
@@ -51,20 +62,21 @@ def summarize_table_basic(
     unique_tracker: Dict[str, set] = {column: set() for column in (id_columns or [])}
     column_count = None
 
-    for chunk in iter_table_chunks(
-        extracted_dir=extracted_dir,
-        table_name=table_name,
-        chunksize=chunksize,
-        low_memory=low_memory,
-    ):
-        chunk_count += 1
-        row_count += len(chunk)
-        if column_count is None:
-            column_count = len(chunk.columns)
+    with _suppress_dtype_warning():
+        for chunk in iter_table_chunks(
+            extracted_dir=extracted_dir,
+            table_name=table_name,
+            chunksize=chunksize,
+            low_memory=low_memory,
+        ):
+            chunk_count += 1
+            row_count += len(chunk)
+            if column_count is None:
+                column_count = len(chunk.columns)
 
-        for column in unique_tracker:
-            if column in chunk.columns:
-                unique_tracker[column].update(chunk[column].dropna().astype(str).unique().tolist())
+            for column in unique_tracker:
+                if column in chunk.columns:
+                    unique_tracker[column].update(chunk[column].dropna().astype(str).unique().tolist())
 
     summary = {
         "table_name": table_name,
@@ -83,12 +95,13 @@ def estimate_missingness(
     sample_rows: int = 50000,
     low_memory: bool = True,
 ) -> pd.DataFrame:
-    sample = load_table(
-        extracted_dir=extracted_dir,
-        table_name=table_name,
-        nrows=sample_rows,
-        low_memory=low_memory,
-    )
+    with _suppress_dtype_warning():
+        sample = load_table(
+            extracted_dir=extracted_dir,
+            table_name=table_name,
+            nrows=sample_rows,
+            low_memory=low_memory,
+        )
     if sample.empty:
         return pd.DataFrame(
             columns=["table_name", "column_name", "missing_fraction_sample", "non_null_count_sample"]
@@ -124,23 +137,24 @@ def summarize_note_categories(
     timed_rows = 0
     text_rows = 0
 
-    for chunk in iter_table_chunks(
-        extracted_dir=extracted_dir,
-        table_name=table_name,
-        usecols=[column for column in [category_column, text_column, time_column] if column],
-        chunksize=chunksize,
-        low_memory=low_memory,
-    ):
-        note_rows += len(chunk)
-        if time_column in chunk.columns:
-            timed_rows += int(chunk[time_column].notna().sum())
-        if text_column in chunk.columns:
-            text_rows += int(chunk[text_column].notna().sum())
+    with _suppress_dtype_warning():
+        for chunk in iter_table_chunks(
+            extracted_dir=extracted_dir,
+            table_name=table_name,
+            usecols=[column for column in [category_column, text_column, time_column] if column],
+            chunksize=chunksize,
+            low_memory=low_memory,
+        ):
+            note_rows += len(chunk)
+            if time_column in chunk.columns:
+                timed_rows += int(chunk[time_column].notna().sum())
+            if text_column in chunk.columns:
+                text_rows += int(chunk[text_column].notna().sum())
 
-        if category_column in chunk.columns:
-            category_counts = chunk[category_column].astype("string").fillna("<MISSING>").value_counts()
-            for key, value in category_counts.items():
-                counts[str(key)] = counts.get(str(key), 0) + int(value)
+            if category_column in chunk.columns:
+                category_counts = chunk[category_column].astype("string").fillna("<MISSING>").value_counts()
+                for key, value in category_counts.items():
+                    counts[str(key)] = counts.get(str(key), 0) + int(value)
 
     rows = [
         {
@@ -161,18 +175,19 @@ def summarize_demographics(
     admissions_table: str = "ADMISSIONS.csv",
     low_memory: bool = True,
 ) -> Dict[str, object]:
-    patients = load_table(
-        extracted_dir=extracted_dir,
-        table_name=patients_table,
-        usecols=["SUBJECT_ID", "GENDER", "DOB"],
-        low_memory=low_memory,
-    )
-    admissions = load_table(
-        extracted_dir=extracted_dir,
-        table_name=admissions_table,
-        usecols=["SUBJECT_ID", "HADM_ID", "ETHNICITY", "ADMITTIME"],
-        low_memory=low_memory,
-    )
+    with _suppress_dtype_warning():
+        patients = load_table(
+            extracted_dir=extracted_dir,
+            table_name=patients_table,
+            usecols=["SUBJECT_ID", "GENDER", "DOB"],
+            low_memory=low_memory,
+        )
+        admissions = load_table(
+            extracted_dir=extracted_dir,
+            table_name=admissions_table,
+            usecols=["SUBJECT_ID", "HADM_ID", "ETHNICITY", "ADMITTIME"],
+            low_memory=low_memory,
+        )
 
     merged = admissions.merge(patients, on="SUBJECT_ID", how="left")
     gender_counts = _safe_value_count(merged["GENDER"], top_k=10) if "GENDER" in merged else {}

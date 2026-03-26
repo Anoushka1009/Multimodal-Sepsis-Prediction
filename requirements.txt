@@ -1,5 +1,5 @@
-pandas
-numpy
+pandas>=1.5.0
+numpy>=1.22.4
 pyyaml
 matplotlib
 seaborn

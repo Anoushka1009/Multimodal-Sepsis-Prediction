@@ -6,6 +6,34 @@ import numpy as np
 import pandas as pd
 
 
+def _safe_abs_correlation(feature: pd.Series, target: pd.Series) -> float:
+    feature = pd.to_numeric(feature, errors='coerce')
+    target = pd.to_numeric(target, errors='coerce')
+
+    valid = feature.notna() & target.notna()
+    if valid.sum() < 2:
+        return 0.0
+
+    feature_valid = feature.loc[valid]
+    target_valid = target.loc[valid]
+    if feature_valid.nunique(dropna=True) < 2 or target_valid.nunique(dropna=True) < 2:
+        return 0.0
+
+    filled = feature.fillna(feature_valid.median())
+    aligned_target = target.loc[filled.index]
+    valid = filled.notna() & aligned_target.notna()
+    if valid.sum() < 2:
+        return 0.0
+
+    filled_valid = filled.loc[valid]
+    aligned_target_valid = aligned_target.loc[valid]
+    if filled_valid.nunique(dropna=True) < 2 or aligned_target_valid.nunique(dropna=True) < 2:
+        return 0.0
+
+    importance = filled_valid.corr(aligned_target_valid)
+    return 0.0 if pd.isna(importance) else float(abs(importance))
+
+
 def compute_surrogate_feature_importance(tabular_df: pd.DataFrame) -> pd.DataFrame:
     if tabular_df.empty:
         return pd.DataFrame(columns=['feature_name', 'importance'])
@@ -20,13 +48,7 @@ def compute_surrogate_feature_importance(tabular_df: pd.DataFrame) -> pd.DataFra
     correlations = []
     target = tabular_df['sepsis3_label'].astype(float)
     for column in feature_columns:
-        series = pd.to_numeric(tabular_df[column], errors='coerce')
-        if series.notna().sum() < 2:
-            importance = 0.0
-        else:
-            importance = abs(series.fillna(series.median()).corr(target))
-            if pd.isna(importance):
-                importance = 0.0
+        importance = _safe_abs_correlation(tabular_df[column], target)
         correlations.append({'feature_name': column, 'importance': float(importance)})
     return pd.DataFrame(correlations).sort_values('importance', ascending=False).reset_index(drop=True)
 
@@ -42,13 +64,7 @@ def derive_temporal_feature_importance(horizon_tables: Dict[str, pd.DataFrame], 
         ]
         target = df['sepsis3_label'].astype(float)
         for column in feature_columns:
-            series = pd.to_numeric(df[column], errors='coerce')
-            if series.notna().sum() < 2:
-                importance = 0.0
-            else:
-                importance = abs(series.fillna(series.median()).corr(target))
-                if pd.isna(importance):
-                    importance = 0.0
+            importance = _safe_abs_correlation(df[column], target)
             rows.append({'dataset_name': dataset_name, 'feature_name': column, 'importance': float(importance)})
     result = pd.DataFrame(rows)
     if result.empty:

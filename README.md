@@ -1,6 +1,6 @@
 # Multimodal Early Sepsis Detection with MIMIC-III
 
-This repository is a research-grade, Colab-friendly project scaffold for early sepsis detection from multimodal ICU data in MIMIC-III. It is designed to support:
+This repository is a research-grade project scaffold for early sepsis detection from multimodal ICU data in MIMIC-III. It now supports both local GPU workflows and Google Colab. It is designed to support:
 
 - final-year engineering project demonstrations
 - reproducible machine learning experiments
@@ -14,14 +14,13 @@ The implementation is intentionally staged notebook-by-notebook so the pipeline 
 ### Phase 0: Foundations
 
 1. Repository scaffold and configuration system
-2. Colab + Google Drive dataset bootstrap
+2. Local or Colab dataset bootstrap
 3. Shared utilities for paths, logging, reproducibility, and large CSV loading
 
 ### Phase 1: Dataset Access and Exploration
 
 1. `01_dataset_setup.ipynb`
-   - mount Google Drive
-   - locate MIMIC-III zip file
+   - locate the MIMIC-III zip file locally or on Google Drive
    - unzip into project data directory
    - validate required tables
    - persist a run manifest
@@ -133,23 +132,40 @@ multimodal-early-sepsis/
 ## Notebook Status
 
 - `01_dataset_setup.ipynb`: implemented
-- `02_data_exploration.ipynb`: placeholder scaffold
-- `03_cohort_construction.ipynb`: placeholder scaffold
-- `04_feature_engineering.ipynb`: placeholder scaffold
-- `05_text_processing.ipynb`: placeholder scaffold
-- `06_baseline_models.ipynb`: placeholder scaffold
-- `07_multimodal_models.ipynb`: placeholder scaffold
-- `08_evaluation.ipynb`: placeholder scaffold
-- `09_ablation_experiments.ipynb`: placeholder scaffold
-- `10_explainability.ipynb`: placeholder scaffold
+- `02_data_exploration.ipynb`: implemented
+- `03_cohort_construction.ipynb`: implemented
+- `04_feature_engineering.ipynb`: implemented
+- `05_text_processing.ipynb`: implemented
+- `06_baseline_models.ipynb`: implemented
+- `07_multimodal_models.ipynb`: implemented with local training support
+- `08_evaluation.ipynb`: implemented
+- `09_ablation_experiments.ipynb`: implemented
+- `10_explainability.ipynb`: implemented
 
 ## Quick Start
 
+### Local Jupyter / GPU machine
+
+1. Create an environment and install dependencies with `pip install -r requirements.txt`.
+2. Start Jupyter from anywhere inside the repository. The notebooks now resolve the project root automatically, so they no longer depend on Colab paths.
+3. Run the notebooks in order from `01_dataset_setup.ipynb` through `10_explainability.ipynb`.
+4. Put the MIMIC-III zip file somewhere under the repository, or set `ZIP_PATH` manually in `01_dataset_setup.ipynb`.
+5. Use `notebooks/07_multimodal_models.ipynb` to train the multimodal model locally on the GPU.
+6. Or train without opening a notebook: `python scripts/train_multimodal_local.py --device cuda`
+
+### Google Colab
+
 1. Open `notebooks/01_dataset_setup.ipynb` in Google Colab.
-2. Mount Google Drive.
+2. Mount Google Drive when prompted.
 3. Set the zip path in the notebook or config.
 4. Unzip the required MIMIC-III tables into the configured project data directory.
 5. Run the validation cell to confirm table availability.
+
+## Local Runtime Notes
+
+- Notebook startup no longer assumes `/content/...`; it discovers the repository root dynamically.
+- `07_multimodal_models.ipynb` now performs real multimodal training and writes checkpoints under `results/processed/07_multimodal_models/`.
+- Text embeddings default to `transformers` when the configured model is available. If the transformer weights are unavailable, the code falls back to a deterministic hashing encoder so local training still runs.
 
 ## Reproducibility Notes
 

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import re
+import warnings
 from pathlib import Path
 from typing import Dict, Iterable, List
 
 import pandas as pd
+from pandas.errors import DtypeWarning
 
 from .cohort import ID_COLUMNS
 from .io import iter_table_chunks
@@ -12,6 +14,10 @@ from .sepsis3 import attach_icustay_ids
 
 
 WHITESPACE_RE = re.compile(r"\s+")
+
+
+def _suppress_dtype_warning():
+    return warnings.catch_warnings()
 
 
 def clean_note_text(text: str, max_characters: int = 4000) -> str:
@@ -35,29 +41,31 @@ def load_and_filter_notes(
     category_set = {category.lower() for category in note_categories}
     note_frames: List[pd.DataFrame] = []
 
-    for chunk in iter_table_chunks(
-        extracted_dir=extracted_dir,
-        table_name='NOTEEVENTS.csv',
-        usecols=list(note_columns),
-        chunksize=chunksize,
-        low_memory=low_memory,
-    ):
-        if 'CATEGORY' in chunk.columns:
-            category_mask = chunk['CATEGORY'].astype(str).str.lower().isin(category_set)
-            chunk = chunk.loc[category_mask].copy()
-        if chunk.empty:
-            continue
+    with _suppress_dtype_warning():
+        warnings.simplefilter("ignore", DtypeWarning)
+        for chunk in iter_table_chunks(
+            extracted_dir=extracted_dir,
+            table_name='NOTEEVENTS.csv',
+            usecols=list(note_columns),
+            chunksize=chunksize,
+            low_memory=low_memory,
+        ):
+            if 'CATEGORY' in chunk.columns:
+                category_mask = chunk['CATEGORY'].astype(str).str.lower().isin(category_set)
+                chunk = chunk.loc[category_mask].copy()
+            if chunk.empty:
+                continue
 
-        time_source = 'CHARTTIME' if 'CHARTTIME' in chunk.columns else 'CHARTDATE'
-        chunk['note_time'] = pd.to_datetime(chunk[time_source], errors='coerce')
-        chunk = chunk.dropna(subset=['SUBJECT_ID', 'HADM_ID', 'note_time', 'TEXT']).copy()
-        chunk['clean_text'] = chunk['TEXT'].astype(str).map(lambda x: clean_note_text(x, max_characters=max_note_characters))
-        chunk['text_length'] = chunk['clean_text'].str.len()
-        chunk = chunk.loc[chunk['text_length'] >= int(min_note_characters)].copy()
-        if chunk.empty:
-            continue
+            time_source = 'CHARTTIME' if 'CHARTTIME' in chunk.columns else 'CHARTDATE'
+            chunk['note_time'] = pd.to_datetime(chunk[time_source], errors='coerce')
+            chunk = chunk.dropna(subset=['SUBJECT_ID', 'HADM_ID', 'note_time', 'TEXT']).copy()
+            chunk['clean_text'] = chunk['TEXT'].astype(str).map(lambda x: clean_note_text(x, max_characters=max_note_characters))
+            chunk['text_length'] = chunk['clean_text'].str.len()
+            chunk = chunk.loc[chunk['text_length'] >= int(min_note_characters)].copy()
+            if chunk.empty:
+                continue
 
-        note_frames.append(chunk)
+            note_frames.append(chunk)
 
     if not note_frames:
         return pd.DataFrame(columns=ID_COLUMNS + ['note_time', 'CATEGORY', 'DESCRIPTION', 'clean_text', 'text_length'])

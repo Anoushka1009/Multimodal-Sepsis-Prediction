@@ -110,6 +110,21 @@ def build_planned_ablation_matrix(config: dict) -> pd.DataFrame:
 
 def build_fusion_strategy_table(experiment_plan_df: pd.DataFrame) -> pd.DataFrame:
     if experiment_plan_df.empty:
-        return pd.DataFrame(columns=['fusion_strategy', 'structured_encoder', 'dry_run_mean_probability'])
-    keep_columns = [column for column in ['fusion_strategy', 'structured_encoder', 'dry_run_mean_probability', 'dataset_name'] if column in experiment_plan_df.columns]
-    return experiment_plan_df[keep_columns].copy().sort_values(['dataset_name', 'fusion_strategy']).reset_index(drop=True)
+        return pd.DataFrame(columns=['fusion_strategy', 'structured_encoder', 'dataset_name'])
+    keep_columns = [
+        column
+        for column in [
+            'fusion_strategy',
+            'structured_encoder',
+            'dataset_name',
+            'split',
+            'auprc',
+            'auroc',
+            'loss',
+            'dry_run_mean_probability',
+            'text_embedding_backend',
+        ]
+        if column in experiment_plan_df.columns
+    ]
+    sort_columns = [column for column in ['dataset_name', 'split', 'fusion_strategy'] if column in keep_columns]
+    return experiment_plan_df[keep_columns].copy().sort_values(sort_columns or keep_columns[:1]).reset_index(drop=True)

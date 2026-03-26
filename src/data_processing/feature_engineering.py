@@ -121,7 +121,7 @@ def aggregate_events_hourly(
         return pd.DataFrame(columns=ID_COLUMNS + ['hour'])
 
     events = events.copy()
-    events['hour'] = pd.to_datetime(events['charttime'], errors='coerce').dt.floor('H')
+    events['hour'] = pd.to_datetime(events['charttime'], errors='coerce').dt.floor('h')
     events = events.dropna(subset=['hour', 'ICUSTAY_ID'])
 
     grouped = events.groupby(ID_COLUMNS + ['hour', 'feature_name'])['value']
