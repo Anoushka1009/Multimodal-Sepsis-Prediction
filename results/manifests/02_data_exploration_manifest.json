@@ -1,0 +1,391 @@
+{
+  "config": {
+    "ablation": {
+      "baseline_models": [
+        "logistic_regression"
+      ],
+      "executable_variants": [
+        "vitals_only",
+        "vitals_labs",
+        "structured_full"
+      ],
+      "planned_variants": [
+        "vitals_only",
+        "vitals_labs",
+        "structured_full",
+        "text_only",
+        "multimodal_fusion"
+      ]
+    },
+    "baselines": {
+      "imputation_strategy": "median",
+      "logistic_regression": {
+        "class_weight": "balanced",
+        "max_iter": 1000
+      },
+      "models": [
+        "logistic_regression",
+        "random_forest",
+        "xgboost"
+      ],
+      "random_forest": {
+        "class_weight": "balanced_subsample",
+        "max_depth": 12,
+        "min_samples_leaf": 5,
+        "n_estimators": 300
+      },
+      "random_state": 42,
+      "tabular_aggregations": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "xgboost": {
+        "colsample_bytree": 0.8,
+        "learning_rate": 0.05,
+        "max_depth": 6,
+        "n_estimators": 300,
+        "subsample": 0.8
+      }
+    },
+    "cohort": {
+      "adult_age_min": 18,
+      "first_icu_only": false,
+      "min_icu_los_hours": 6,
+      "patient_split_random_state": 42
+    },
+    "colab": {
+      "default_drive_search_root": "/content/drive/MyDrive",
+      "drive_mount_point": "/content/drive",
+      "project_workdir": "/content/multimodal-early-sepsis"
+    },
+    "dataset": {
+      "chunksize": 100000,
+      "default_local_zip_path": "mimic.zip",
+      "low_memory": true,
+      "optional_tables": [
+        "INPUTEVENTS_MV.csv",
+        "INPUTEVENTS_CV.csv",
+        "OUTPUTEVENTS.csv",
+        "PROCEDUREEVENTS_MV.csv",
+        "D_ITEMS.csv",
+        "D_LABITEMS.csv"
+      ],
+      "required_tables": [
+        "PATIENTS.csv",
+        "ADMISSIONS.csv",
+        "ICUSTAYS.csv",
+        "CHARTEVENTS.csv",
+        "LABEVENTS.csv",
+        "NOTEEVENTS.csv",
+        "PRESCRIPTIONS.csv",
+        "MICROBIOLOGYEVENTS.csv"
+      ],
+      "zip_filename_patterns": [
+        "mimic",
+        "MIMIC"
+      ]
+    },
+    "evaluation": {
+      "calibration_bins": 10,
+      "default_threshold": 0.5
+    },
+    "explainability": {
+      "shap_sample_size": 200,
+      "top_k_features": 20,
+      "top_k_phrases": 10
+    },
+    "exploration": {
+      "cohort_id_columns": [
+        "SUBJECT_ID",
+        "HADM_ID",
+        "ICUSTAY_ID"
+      ],
+      "key_tables": [
+        "PATIENTS.csv",
+        "ADMISSIONS.csv",
+        "ICUSTAYS.csv",
+        "NOTEEVENTS.csv",
+        "CHARTEVENTS.csv",
+        "LABEVENTS.csv",
+        "PRESCRIPTIONS.csv",
+        "MICROBIOLOGYEVENTS.csv"
+      ],
+      "missingness_sample_rows": 50000,
+      "note_category_top_k": 15,
+      "preview_rows": 5
+    },
+    "feature_engineering": {
+      "aggregate_functions": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "chart_feature_keywords": {
+        "dbp": [
+          "arterial blood pressure diastolic",
+          "non invasive blood pressure diastolic",
+          "diastolic blood pressure"
+        ],
+        "glucose_chart": [
+          "glucose"
+        ],
+        "heart_rate": [
+          "heart rate"
+        ],
+        "map": [
+          "mean arterial",
+          "arterial pressure mean"
+        ],
+        "respiratory_rate": [
+          "respiratory rate"
+        ],
+        "sbp": [
+          "arterial blood pressure systolic",
+          "non invasive blood pressure systolic",
+          "systolic blood pressure"
+        ],
+        "spo2": [
+          "spo2",
+          "o2 saturation pulseoxymetry"
+        ],
+        "temperature_c": [
+          "temperature c",
+          "temp c"
+        ]
+      },
+      "history_window_hours": 48,
+      "hourly_window_hours": 1,
+      "lab_feature_keywords": {
+        "bicarbonate": [
+          "bicarbonate"
+        ],
+        "bilirubin": [
+          "bilirubin"
+        ],
+        "bun": [
+          "urea nitrogen",
+          "bun"
+        ],
+        "creatinine": [
+          "creatinine"
+        ],
+        "hemoglobin": [
+          "hemoglobin"
+        ],
+        "lactate": [
+          "lactate"
+        ],
+        "platelet": [
+          "platelet"
+        ],
+        "potassium": [
+          "potassium"
+        ],
+        "sodium": [
+          "sodium"
+        ],
+        "wbc": [
+          "white blood cells",
+          "wbc"
+        ]
+      },
+      "min_history_hours": 6
+    },
+    "multimodal": {
+      "batch_size": 16,
+      "device": "auto",
+      "dropout": 0.2,
+      "epochs": 10,
+      "fusion_strategies": [
+        "early_fusion",
+        "late_fusion",
+        "gated_fusion",
+        "cross_modal_attention"
+      ],
+      "gradient_clip_norm": 1.0,
+      "hidden_dim": 128,
+      "learning_rate": 0.0005,
+      "max_structured_steps": 48,
+      "max_text_windows": 8,
+      "max_tokens_per_window": 128,
+      "structured_encoder": "gru",
+      "text_embedding_dim": 768,
+      "weight_decay": 0.0001
+    },
+    "notes": {
+      "categories": [
+        "Physician",
+        "Nursing",
+        "Radiology"
+      ],
+      "text_column": "TEXT",
+      "time_column": "CHARTTIME"
+    },
+    "paths": {
+      "data_root": "data",
+      "extracted_data_dir": "data/mimiciii",
+      "figures_dir": "figures",
+      "interim_data_dir": "results/intermediate",
+      "logs_dir": "results/logs",
+      "manifests_dir": "results/manifests",
+      "processed_data_dir": "results/processed",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "raw_data_dir": "data/raw",
+      "tables_dir": "results/tables"
+    },
+    "prediction": {
+      "horizons_hours": [
+        6,
+        12,
+        24
+      ]
+    },
+    "project": {
+      "name": "multimodal-early-sepsis",
+      "seed": 42,
+      "timezone": "UTC"
+    },
+    "sepsis3": {
+      "antibiotic_keywords": [
+        "cillin",
+        "cef",
+        "ceph",
+        "mycin",
+        "penem",
+        "floxacin",
+        "cycline",
+        "sulfameth",
+        "trimeth",
+        "vancomycin",
+        "piperacillin",
+        "tazobactam",
+        "meropenem",
+        "imipenem"
+      ],
+      "baseline_window_hours": 24,
+      "chart_item_keywords": {
+        "fio2": [
+          "fio2",
+          "inspired o2 fraction"
+        ],
+        "gcs_total": [
+          "glasgow coma scale total",
+          "gcs total"
+        ],
+        "map": [
+          "mean arterial",
+          "arterial pressure mean"
+        ],
+        "urine_output": [
+          "urine output"
+        ]
+      },
+      "lab_item_keywords": {
+        "bilirubin": [
+          "bilirubin"
+        ],
+        "creatinine": [
+          "creatinine"
+        ],
+        "pao2": [
+          "po2",
+          "pao2"
+        ],
+        "platelet": [
+          "platelet"
+        ]
+      },
+      "onset_window": {
+        "sofa_after_suspicion_hours": 24,
+        "sofa_before_suspicion_hours": 48
+      },
+      "sofa_delta_threshold": 2,
+      "suspicion_window": {
+        "antibiotic_after_culture_hours": 72,
+        "culture_after_antibiotic_hours": 24
+      },
+      "vasopressor_keywords": [
+        "norepinephrine",
+        "epinephrine",
+        "vasopressin",
+        "phenylephrine",
+        "dopamine",
+        "dobutamine"
+      ]
+    },
+    "text_processing": {
+      "aggregation_window_hours": 6,
+      "embedding_backend": "auto",
+      "embedding_batch_size": 8,
+      "local_files_only": false,
+      "max_note_characters": 4000,
+      "max_notes_per_stay": 200,
+      "min_note_characters": 20,
+      "note_categories": [
+        "Physician",
+        "Nursing",
+        "Radiology"
+      ],
+      "note_columns": [
+        "ROW_ID",
+        "SUBJECT_ID",
+        "HADM_ID",
+        "CHARTDATE",
+        "CHARTTIME",
+        "STORETIME",
+        "CATEGORY",
+        "DESCRIPTION",
+        "TEXT"
+      ],
+      "pretrained_text_model_name": "emilyalsentzer/Bio_ClinicalBERT",
+      "tokenizer_max_length": 128
+    },
+    "training": {
+      "test_size": 0.15,
+      "val_size": 0.15
+    }
+  },
+  "created_at_utc": "2026-03-25T09:39:21.029203+00:00",
+  "extra": {
+    "demographics_summary": {
+      "admission_count": 58976,
+      "ethnicity_distribution": {
+        "ASIAN": 1509,
+        "ASIAN - CHINESE": 277,
+        "BLACK/AFRICAN AMERICAN": 5440,
+        "HISPANIC OR LATINO": 1696,
+        "HISPANIC/LATINO - PUERTO RICAN": 232,
+        "OTHER": 1512,
+        "PATIENT DECLINED TO ANSWER": 559,
+        "UNABLE TO OBTAIN": 814,
+        "UNKNOWN/NOT SPECIFIED": 4523,
+        "WHITE": 40996
+      },
+      "gender_distribution": {
+        "F": 26026,
+        "M": 32950
+      },
+      "patient_count": 46520
+    },
+    "saved_artifacts": {
+      "missingness_sample": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/tables/02_data_exploration/missingness_sample.csv",
+      "note_category_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/tables/02_data_exploration/note_category_summary.csv",
+      "schema_preview": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/tables/02_data_exploration/schema_preview.csv",
+      "table_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/tables/02_data_exploration/table_summary.csv"
+    },
+    "table_names_profiled": [
+      "PATIENTS.csv",
+      "ADMISSIONS.csv",
+      "ICUSTAYS.csv",
+      "NOTEEVENTS.csv",
+      "CHARTEVENTS.csv",
+      "LABEVENTS.csv",
+      "PRESCRIPTIONS.csv",
+      "MICROBIOLOGYEVENTS.csv"
+    ]
+  },
+  "stage": "02_data_exploration"
+}
