@@ -1,0 +1,2 @@
+dataset_name,text_embedding_backend,n_train,n_val,n_test,n_structured_features,n_text_embedding_features,n_note_metadata_features,n_event_features,device
+horizon_6h_structured_full,transformer:emilyalsentzer/Bio_ClinicalBERT,26875,5745,5827,428,1536,14,9,cuda
