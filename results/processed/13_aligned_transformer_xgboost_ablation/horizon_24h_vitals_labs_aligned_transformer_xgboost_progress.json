@@ -1,0 +1,9 @@
+{
+  "current_epoch": 10,
+  "dataset_name": "horizon_24h_vitals_labs",
+  "encoder_checkpoint": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/13_aligned_transformer_xgboost_ablation/horizon_24h_vitals_labs_aligned_transformer_encoder_best.pt",
+  "result_row_count": 2,
+  "status": "completed",
+  "total_epochs": 10,
+  "xgboost_threshold": 0.07328823953866959
+}

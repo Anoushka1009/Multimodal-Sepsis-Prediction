@@ -1,0 +1,4 @@
+variant_name,description,implemented_now
+vitals_only,Structured vitals subset only,True
+vitals_labs,Vitals plus laboratory subset,True
+structured_full,All structured EHR features,True

@@ -1,0 +1,2 @@
+dataset_name,structured_encoder,text_input_mode,text_embedding_backend,alignment_dim,n_train,n_val,n_test,n_aligned_features,n_structured_features,n_note_metadata_features,n_event_features,encoder_checkpoint_path,device
+horizon_6h_vitals_labs,transformer,frozen_embedding,transformer:emilyalsentzer/Bio_ClinicalBERT,256,26875,5745,5827,256,360,14,0,/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/13_aligned_transformer_xgboost_ablation/horizon_6h_vitals_labs_aligned_transformer_encoder_best.pt,cuda
