@@ -185,6 +185,17 @@ feature_engineering:
       - "o2 saturation pulseoxymetry"
     glucose_chart:
       - "glucose"
+    fio2:
+      - "fio2"
+      - "inspired o2 fraction"
+    gcs_total:
+      - "gcs total"
+      - "glasgow coma scale total"
+    urine_output:
+      - "urine output"
+      - "urine out"
+      - "urine out foley"
+      - "urine out void"
   lab_feature_keywords:
     wbc:
       - "white blood cells"
@@ -223,6 +234,13 @@ text_processing:
   tokenizer_max_length: 128
   embedding_batch_size: 8
   local_files_only: false
+  keyword_masking:
+    enabled: true
+    replacement: " "
+    keywords:
+      - "septic shock"
+      - "septic"
+      - "sepsis"
   note_columns:
     - "ROW_ID"
     - "SUBJECT_ID"
@@ -261,20 +279,115 @@ baselines:
     subsample: 0.8
     colsample_bytree: 0.8
 
-multimodal:
-  batch_size: 16
+tabular_multimodal:
+  output_stage: "06_baseline_models"
+  models:
+    - xgboost_text_augmented
+    - stacked_xgboost_notes
+  structured_aggregations:
+    - mean
+    - min
+    - max
+    - last
+  include_missingness: true
+  include_static_categoricals: true
+  text_embedding_aggregations:
+    - mean
+    - closest
+  include_note_metadata: true
+  include_clinical_event_features: true
+  clinical_event_lookback_hours: 48
+  note_model: logistic_regression
+  meta_model: logistic_regression
+  stacked_decision_threshold: 0.5
+  threshold_selection_metric: f1
+
+aligned_transformer_xgboost:
+  output_stage: "10_aligned_transformer_xgboost"
+  structured_encoder: transformer
+  text_encoder_mode: frozen_embedding
   hidden_dim: 128
+  aligned_dim: 256
   dropout: 0.2
-  learning_rate: 0.0005
+  batch_size: 8
   epochs: 10
-  device: auto
+  learning_rate: 0.0003
   weight_decay: 0.0001
   gradient_clip_norm: 1.0
+  scheduler: cosine
+  min_learning_rate: 0.00005
+  early_stopping_patience: 4
+  threshold_selection_metric: f1
   max_structured_steps: 48
   max_text_windows: 8
   max_tokens_per_window: 128
   text_embedding_dim: 768
-  structured_encoder: gru
+  structured_aggregations:
+    - mean
+    - min
+    - max
+    - last
+  include_missingness: true
+  include_static_categoricals: true
+  include_note_metadata: true
+  include_clinical_event_features: true
+  clinical_event_lookback_hours: 48
+  xgboost_model: xgboost
+
+aligned_transformer_xgboost_evaluation:
+  output_stage: "12_aligned_transformer_xgboost_evaluation"
+
+aligned_transformer_xgboost_ablation:
+  output_stage: "13_aligned_transformer_xgboost_ablation"
+  executable_variants:
+    - vitals_only
+    - vitals_labs
+    - structured_full
+  planned_variants:
+    - vitals_only
+    - vitals_labs
+    - structured_full
+  default_horizons:
+    - 6
+    - 12
+    - 24
+  device: auto
+
+multimodal:
+  batch_size: 2
+  hidden_dim: 128
+  dropout: 0.2
+  learning_rate: 0.0003
+  text_finetune_learning_rate: 0.00002
+  epochs: 20
+  device: auto
+  weight_decay: 0.0001
+  gradient_clip_norm: 1.0
+  scheduler: cosine
+  min_learning_rate: 0.00005
+  early_stopping_patience: 5
+  threshold_selection_metric: f1
+  max_structured_steps: 48
+  max_text_windows: 8
+  max_tokens_per_window: 128
+  text_embedding_dim: 768
+  structured_encoder: transformer
+  text_encoder_mode: bert_finetune
+  text_finetune_unfrozen_layers: 1
+  text_gradient_checkpointing: true
+  structured_num_heads: 4
+  structured_num_layers: 2
+  text_num_heads: 4
+  text_num_layers: 1
+  fusion_num_heads: 4
+  structured_summary:
+    enabled: true
+    aggregations:
+      - mean
+      - min
+      - max
+      - last
+    include_missingness: true
   fusion_strategies:
     - early_fusion
     - late_fusion
@@ -286,6 +399,7 @@ evaluation:
   calibration_bins: 10
 
 ablation:
+  model_source: tabular_multimodal
   executable_variants:
     - vitals_only
     - vitals_labs
