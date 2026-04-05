@@ -1,0 +1,11 @@
+feature_name,clinical_interpretation
+hours_to_prediction__min,This feature may reflect physiologic instability associated with impending sepsis onset.
+hours_to_prediction__last,This feature may reflect physiologic instability associated with impending sepsis onset.
+map__max__max,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__max__last,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__last__max,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__mean__max,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__mean__last,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__last__last,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__max__mean,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
+map__min__max,Blood pressure instability is clinically consistent with shock progression and organ hypoperfusion risk.
