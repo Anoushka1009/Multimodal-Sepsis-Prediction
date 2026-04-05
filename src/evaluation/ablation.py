@@ -11,6 +11,8 @@ from src.models.baselines import (
     make_stay_level_tabular_dataset,
     split_tabular_dataset,
 )
+from src.training.tabular_multimodal import train_tabular_multimodal_models
+from src.utils.paths import resolve_project_paths
 
 
 VITAL_KEYWORDS = ['heart_rate', 'sbp', 'dbp', 'map', 'respiratory_rate', 'temperature_c', 'spo2', 'glucose_chart']
@@ -50,6 +52,10 @@ def build_variant_dataset(horizon_df: pd.DataFrame, variant_name: str) -> pd.Dat
 
 
 def run_structured_ablation_suite(horizon_tables: Dict[str, pd.DataFrame], config: dict) -> Dict[str, pd.DataFrame]:
+    model_source = str(config.get('ablation', {}).get('model_source', 'baseline')).lower()
+    if model_source == 'tabular_multimodal':
+        return _run_tabular_multimodal_ablation_suite(horizon_tables, config)
+
     models = build_baseline_models(config)
     models = {name: model for name, model in models.items() if name in set(config['ablation']['baseline_models'])}
 
@@ -87,6 +93,53 @@ def run_structured_ablation_suite(horizon_tables: Dict[str, pd.DataFrame], confi
                 artifacts[f'{dataset_name}_{variant_name}_{model_name}_predictions'] = pred_df
 
     artifacts['ablation_results'] = pd.DataFrame(rows)
+    return artifacts
+
+
+def _run_tabular_multimodal_ablation_suite(horizon_tables: Dict[str, pd.DataFrame], config: dict) -> Dict[str, pd.DataFrame]:
+    paths = resolve_project_paths(config)
+    processed_dir = paths['processed_data_dir']
+    extracted_dir = paths['extracted_data_dir']
+
+    rows = []
+    artifacts: Dict[str, pd.DataFrame] = {}
+    for dataset_name, horizon_df in horizon_tables.items():
+        text_path = processed_dir / '05_text_processing' / f'{dataset_name}_note_windows.csv'
+        if not text_path.exists():
+            continue
+        text_df = pd.read_csv(
+            text_path,
+            parse_dates=['prediction_time', 'first_note_time', 'last_note_time'],
+            low_memory=False,
+        )
+
+        for variant_name in config['ablation']['executable_variants']:
+            variant_df = build_variant_dataset(horizon_df, variant_name)
+            dataset_tag = f'{dataset_name}_{variant_name}'
+            output = train_tabular_multimodal_models(
+                structured_df=variant_df,
+                text_df=text_df,
+                config=config,
+                extracted_dir=extracted_dir,
+                dataset_name=dataset_tag,
+                device=config.get('multimodal', {}).get('device', 'auto'),
+            )
+
+            for artifact_name, artifact_df in output['artifacts'].items():
+                artifacts[artifact_name] = artifact_df
+
+            result_key = f'{dataset_tag}_tabular_multimodal_results'
+            result_df = output['artifacts'].get(result_key, pd.DataFrame()).copy()
+            if not result_df.empty:
+                result_df['dataset_name'] = dataset_name
+                result_df['variant_name'] = variant_name
+                rows.append(result_df)
+
+    artifacts['ablation_results'] = (
+        pd.concat(rows, ignore_index=True).sort_values(['dataset_name', 'variant_name', 'model_name', 'split']).reset_index(drop=True)
+        if rows
+        else pd.DataFrame()
+    )
     return artifacts
 
 

@@ -6,6 +6,16 @@ import torch
 from torch import nn
 
 
+def _masked_mean(sequence: torch.Tensor, padding_mask: torch.Tensor | None) -> torch.Tensor:
+    if padding_mask is None:
+        return sequence.mean(dim=1)
+
+    valid_mask = (~padding_mask).unsqueeze(-1).to(sequence.dtype)
+    summed = (sequence * valid_mask).sum(dim=1)
+    counts = valid_mask.sum(dim=1).clamp(min=1.0)
+    return summed / counts
+
+
 class GRUStructuredEncoder(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int, num_layers: int = 1, dropout: float = 0.2):
         super().__init__()
@@ -17,9 +27,23 @@ class GRUStructuredEncoder(nn.Module):
             dropout=dropout if num_layers > 1 else 0.0,
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        _, hidden = self.gru(x)
-        return hidden[-1]
+    def forward(
+        self,
+        x: torch.Tensor,
+        padding_mask: torch.Tensor | None = None,
+        return_sequence: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+        outputs, hidden = self.gru(x)
+        pooled = hidden[-1]
+
+        if padding_mask is not None:
+            valid_lengths = (~padding_mask).sum(dim=1).clamp(min=1)
+            batch_indices = torch.arange(outputs.size(0), device=outputs.device)
+            pooled = outputs[batch_indices, valid_lengths - 1]
+
+        if return_sequence:
+            return outputs, pooled
+        return pooled
 
 
 class PositionalEncoding(nn.Module):
@@ -41,6 +65,7 @@ class TransformerStructuredEncoder(nn.Module):
         super().__init__()
         self.input_proj = nn.Linear(input_dim, hidden_dim)
         self.positional_encoding = PositionalEncoding(hidden_dim)
+        self.input_dropout = nn.Dropout(dropout)
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=hidden_dim,
             nhead=num_heads,
@@ -48,10 +73,24 @@ class TransformerStructuredEncoder(nn.Module):
             dropout=dropout,
             batch_first=True,
         )
-        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.encoder = nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=num_layers,
+            enable_nested_tensor=False,
+        )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        x: torch.Tensor,
+        padding_mask: torch.Tensor | None = None,
+        return_sequence: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         h = self.input_proj(x)
         h = self.positional_encoding(h)
-        h = self.encoder(h)
-        return h.mean(dim=1)
+        h = self.input_dropout(h)
+        h = self.encoder(h, src_key_padding_mask=padding_mask)
+        pooled = _masked_mean(h, padding_mask)
+
+        if return_sequence:
+            return h, pooled
+        return pooled

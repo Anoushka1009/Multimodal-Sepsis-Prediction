@@ -37,8 +37,18 @@ def build_calibration_table(y_true, y_prob, n_bins: int = 10) -> pd.DataFrame:
     return pd.DataFrame({'mean_predicted_probability': prob_pred, 'fraction_positive': prob_true})
 
 
-def summarize_predictions(predictions_df: pd.DataFrame, threshold: float = 0.5, calibration_bins: int = 10) -> Tuple[Dict[str, float], Dict[str, pd.DataFrame]]:
-    metrics = compute_binary_classification_metrics(predictions_df['y_true'], predictions_df['y_prob'], threshold=threshold)
+def _resolve_prediction_threshold(predictions_df: pd.DataFrame, threshold: float | None = 0.5) -> float:
+    if 'decision_threshold' in predictions_df.columns:
+        decision_threshold = pd.to_numeric(predictions_df['decision_threshold'], errors='coerce').dropna()
+        if not decision_threshold.empty:
+            return float(decision_threshold.iloc[0])
+    return float(0.5 if threshold is None else threshold)
+
+
+def summarize_predictions(predictions_df: pd.DataFrame, threshold: float | None = 0.5, calibration_bins: int = 10) -> Tuple[Dict[str, float], Dict[str, pd.DataFrame]]:
+    resolved_threshold = _resolve_prediction_threshold(predictions_df, threshold=threshold)
+    metrics = compute_binary_classification_metrics(predictions_df['y_true'], predictions_df['y_prob'], threshold=resolved_threshold)
+    metrics['decision_threshold'] = float(resolved_threshold)
     curves = build_curve_tables(predictions_df['y_true'], predictions_df['y_prob'])
     curves['calibration'] = build_calibration_table(predictions_df['y_true'], predictions_df['y_prob'], n_bins=calibration_bins)
     return metrics, curves

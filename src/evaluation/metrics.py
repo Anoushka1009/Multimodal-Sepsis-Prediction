@@ -4,6 +4,7 @@ from typing import Dict
 
 import numpy as np
 from sklearn.metrics import (
+    accuracy_score,
     average_precision_score,
     brier_score_loss,
     confusion_matrix,
@@ -22,6 +23,7 @@ def compute_binary_classification_metrics(y_true, y_prob, threshold: float = 0.5
     metrics = {
         'auroc': float(roc_auc_score(y_true, y_prob)) if len(np.unique(y_true)) > 1 else float('nan'),
         'auprc': float(average_precision_score(y_true, y_prob)) if len(np.unique(y_true)) > 1 else float('nan'),
+        'accuracy': float(accuracy_score(y_true, y_pred)),
         'precision': float(precision_score(y_true, y_pred, zero_division=0)),
         'recall': float(recall_score(y_true, y_pred, zero_division=0)),
         'f1': float(f1_score(y_true, y_pred, zero_division=0)),

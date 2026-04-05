@@ -27,6 +27,60 @@ def clean_note_text(text: str, max_characters: int = 4000) -> str:
     return cleaned[:max_characters]
 
 
+def _compile_keyword_mask_pattern(keywords: Iterable[str]) -> re.Pattern | None:
+    normalized = [str(keyword).strip() for keyword in keywords if str(keyword).strip()]
+    if not normalized:
+        return None
+    normalized = sorted(set(normalized), key=len, reverse=True)
+    alternation = "|".join(re.escape(keyword) for keyword in normalized)
+    return re.compile(rf"(?<!\w)(?:{alternation})(?!\w)", flags=re.IGNORECASE)
+
+
+def mask_keywords_in_text(
+    text: str,
+    *,
+    keywords: Iterable[str],
+    replacement: str = " ",
+    max_characters: int = 4000,
+) -> str:
+    pattern = _compile_keyword_mask_pattern(keywords)
+    if pattern is None:
+        return clean_note_text(text, max_characters=max_characters)
+    masked = pattern.sub(str(replacement), "" if text is None else str(text))
+    return clean_note_text(masked, max_characters=max_characters)
+
+
+def apply_configured_keyword_masking(
+    frame: pd.DataFrame,
+    config: dict,
+    *,
+    text_column: str = "aggregated_text",
+) -> pd.DataFrame:
+    if frame.empty or text_column not in frame.columns:
+        return frame
+
+    masking_cfg = config.get("text_processing", {}).get("keyword_masking", {})
+    if not bool(masking_cfg.get("enabled", False)):
+        return frame
+
+    keywords = masking_cfg.get("keywords", [])
+    if not keywords:
+        return frame
+
+    masked = frame.copy()
+    replacement = str(masking_cfg.get("replacement", " "))
+    max_characters = int(config.get("text_processing", {}).get("max_note_characters", 4000))
+    masked[text_column] = masked[text_column].map(
+        lambda value: mask_keywords_in_text(
+            value,
+            keywords=keywords,
+            replacement=replacement,
+            max_characters=max_characters,
+        )
+    )
+    return masked
+
+
 def load_and_filter_notes(
     extracted_dir: str | Path,
     cohort: pd.DataFrame,
