@@ -141,6 +141,7 @@ multimodal-early-sepsis/
 - `08_evaluation.ipynb`: implemented
 - `09_ablation_experiments.ipynb`: implemented
 - `10_explainability.ipynb`: implemented
+- `11_custom_model_visualization.ipynb`: implemented
 
 ## Quick Start
 
