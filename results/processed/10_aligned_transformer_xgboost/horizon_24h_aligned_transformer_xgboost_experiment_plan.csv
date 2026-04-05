@@ -1,0 +1,2 @@
+dataset_name,model_name,structured_encoder,text_input_mode,text_embedding_backend,hidden_dim,aligned_dim,epochs,batch_size,learning_rate,weight_decay,scheduler,threshold_selection_metric,xgboost_model,n_train,n_val,n_test
+horizon_24h,aligned_transformer_xgboost,transformer,frozen_embedding,transformer:emilyalsentzer/Bio_ClinicalBERT,128,256,10,8,0.0003,0.0001,cosine,f1,xgboost,18359,3997,4018
