@@ -137,7 +137,13 @@
         ],
         "map": [
           "mean arterial",
-          "arterial pressure mean"
+          "arterial pressure mean",
+          "arterial bp mean",
+          "nbp mean",
+          "art mean",
+          "bp cuff [mean]",
+          "manual bp mean",
+          "femoral abp mean"
         ],
         "respiratory_rate": [
           "respiratory rate"
@@ -198,7 +204,9 @@
       "batch_size": 16,
       "device": "auto",
       "dropout": 0.2,
-      "epochs": 10,
+      "early_stopping_patience": 5,
+      "epochs": 20,
+      "fusion_num_heads": 4,
       "fusion_strategies": [
         "early_fusion",
         "late_fusion",
@@ -211,8 +219,15 @@
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
-      "structured_encoder": "gru",
+      "min_learning_rate": 5e-05,
+      "scheduler": "cosine",
+      "structured_encoder": "transformer",
+      "structured_num_heads": 4,
+      "structured_num_layers": 2,
       "text_embedding_dim": 768,
+      "text_num_heads": 4,
+      "text_num_layers": 1,
+      "threshold_selection_metric": "f1",
       "weight_decay": 0.0001
     },
     "notes": {
@@ -232,7 +247,7 @@
       "logs_dir": "results/logs",
       "manifests_dir": "results/manifests",
       "processed_data_dir": "results/processed",
-      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
       "raw_data_dir": "data/raw",
       "tables_dir": "results/tables"
     },
@@ -277,7 +292,13 @@
         ],
         "map": [
           "mean arterial",
-          "arterial pressure mean"
+          "arterial pressure mean",
+          "arterial bp mean",
+          "nbp mean",
+          "art mean",
+          "bp cuff [mean]",
+          "manual bp mean",
+          "femoral abp mean"
         ],
         "urine_output": [
           "urine output"
@@ -348,7 +369,7 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-03-25T09:19:32.980503+00:00",
+  "created_at_utc": "2026-04-02T05:29:37.229154+00:00",
   "extra": {
     "available_tables": [
       "ADMISSIONS.csv",
@@ -378,8 +399,8 @@
       "SERVICES.csv",
       "TRANSFERS.csv"
     ],
-    "default_local_zip_path": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/mimic.zip",
-    "extracted_dir": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/data/mimiciii",
+    "default_local_zip_path": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/mimic.zip",
+    "extracted_dir": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/data/mimiciii",
     "required_status": {
       "ADMISSIONS.csv": true,
       "CHARTEVENTS.csv": true,
@@ -390,8 +411,8 @@
       "PATIENTS.csv": true,
       "PRESCRIPTIONS.csv": true
     },
-    "search_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
-    "zip_path": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/mimic.zip"
+    "search_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
+    "zip_path": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/mimic.zip"
   },
   "stage": "01_dataset_setup"
 }

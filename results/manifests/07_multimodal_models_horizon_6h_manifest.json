@@ -201,10 +201,12 @@
       "min_history_hours": 6
     },
     "multimodal": {
-      "batch_size": 16,
+      "batch_size": 2,
       "device": "cuda",
       "dropout": 0.2,
-      "epochs": 10,
+      "early_stopping_patience": 5,
+      "epochs": 20,
+      "fusion_num_heads": 4,
       "fusion_strategies": [
         "early_fusion",
         "late_fusion",
@@ -213,12 +215,33 @@
       ],
       "gradient_clip_norm": 1.0,
       "hidden_dim": 128,
-      "learning_rate": 0.0005,
+      "learning_rate": 0.0003,
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
-      "structured_encoder": "gru",
+      "min_learning_rate": 5e-05,
+      "scheduler": "cosine",
+      "structured_encoder": "transformer",
+      "structured_num_heads": 4,
+      "structured_num_layers": 2,
+      "structured_summary": {
+        "aggregations": [
+          "mean",
+          "min",
+          "max",
+          "last"
+        ],
+        "enabled": true,
+        "include_missingness": true
+      },
       "text_embedding_dim": 768,
+      "text_encoder_mode": "bert_finetune",
+      "text_finetune_learning_rate": 2e-05,
+      "text_finetune_unfrozen_layers": 1,
+      "text_gradient_checkpointing": true,
+      "text_num_heads": 4,
+      "text_num_layers": 1,
+      "threshold_selection_metric": "f1",
       "weight_decay": 0.0001
     },
     "notes": {
@@ -238,7 +261,7 @@
       "logs_dir": "results/logs",
       "manifests_dir": "results/manifests",
       "processed_data_dir": "results/processed",
-      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
       "raw_data_dir": "data/raw",
       "tables_dir": "results/tables"
     },
@@ -360,31 +383,31 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-03-25T21:02:22.584246+00:00",
+  "created_at_utc": "2026-04-04T01:22:46.551809+00:00",
   "extra": {
     "checkpoint_paths": {
-      "cross_modal_attention": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_best.pt",
-      "early_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_early_fusion_best.pt",
-      "gated_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_gated_fusion_best.pt",
-      "late_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_late_fusion_best.pt"
+      "cross_modal_attention": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_best.pt",
+      "early_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_early_fusion_best.pt",
+      "gated_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_gated_fusion_best.pt",
+      "late_fusion": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_late_fusion_best.pt"
     },
     "dataset_name": "horizon_6h",
     "device": "cuda",
     "saved_artifacts": {
-      "horizon_6h_cross_modal_attention_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_test_predictions.csv",
-      "horizon_6h_cross_modal_attention_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_val_predictions.csv",
-      "horizon_6h_early_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_early_fusion_test_predictions.csv",
-      "horizon_6h_early_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_early_fusion_val_predictions.csv",
-      "horizon_6h_gated_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_gated_fusion_test_predictions.csv",
-      "horizon_6h_gated_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_gated_fusion_val_predictions.csv",
-      "horizon_6h_late_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_late_fusion_test_predictions.csv",
-      "horizon_6h_late_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_late_fusion_val_predictions.csv",
-      "horizon_6h_multimodal_experiment_plan": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_multimodal_experiment_plan.csv",
-      "horizon_6h_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_multimodal_results.csv",
-      "horizon_6h_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_multimodal_stay_index.csv",
-      "horizon_6h_multimodal_training_history": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/07_multimodal_models/horizon_6h_multimodal_training_history.csv"
+      "horizon_6h_cross_modal_attention_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_test_predictions.csv",
+      "horizon_6h_cross_modal_attention_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_cross_modal_attention_val_predictions.csv",
+      "horizon_6h_early_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_early_fusion_test_predictions.csv",
+      "horizon_6h_early_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_early_fusion_val_predictions.csv",
+      "horizon_6h_gated_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_gated_fusion_test_predictions.csv",
+      "horizon_6h_gated_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_gated_fusion_val_predictions.csv",
+      "horizon_6h_late_fusion_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_late_fusion_test_predictions.csv",
+      "horizon_6h_late_fusion_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_late_fusion_val_predictions.csv",
+      "horizon_6h_multimodal_experiment_plan": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_multimodal_experiment_plan.csv",
+      "horizon_6h_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_multimodal_results.csv",
+      "horizon_6h_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_multimodal_stay_index.csv",
+      "horizon_6h_multimodal_training_history": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/07_multimodal_models/horizon_6h_multimodal_training_history.csv"
     },
-    "text_embedding_backend": "transformer:emilyalsentzer/Bio_ClinicalBERT"
+    "text_embedding_backend": "finetune:emilyalsentzer/Bio_ClinicalBERT"
   },
   "stage": "07_multimodal_models"
 }

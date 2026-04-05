@@ -204,7 +204,9 @@
       "batch_size": 16,
       "device": "auto",
       "dropout": 0.2,
-      "epochs": 10,
+      "early_stopping_patience": 5,
+      "epochs": 20,
+      "fusion_num_heads": 4,
       "fusion_strategies": [
         "early_fusion",
         "late_fusion",
@@ -217,8 +219,15 @@
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
-      "structured_encoder": "gru",
+      "min_learning_rate": 5e-05,
+      "scheduler": "cosine",
+      "structured_encoder": "transformer",
+      "structured_num_heads": 4,
+      "structured_num_layers": 2,
       "text_embedding_dim": 768,
+      "text_num_heads": 4,
+      "text_num_layers": 1,
+      "threshold_selection_metric": "f1",
       "weight_decay": 0.0001
     },
     "notes": {
@@ -238,7 +247,7 @@
       "logs_dir": "results/logs",
       "manifests_dir": "results/manifests",
       "processed_data_dir": "results/processed",
-      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
       "raw_data_dir": "data/raw",
       "tables_dir": "results/tables"
     },
@@ -360,7 +369,7 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-03-25T16:34:47.683443+00:00",
+  "created_at_utc": "2026-04-02T15:53:08.442050+00:00",
   "extra": {
     "horizon_summary": [
       {
@@ -460,17 +469,17 @@
       "wbc__min"
     ],
     "saved_artifacts": {
-      "chart_events": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/chart_events.csv",
-      "chart_hourly": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/chart_hourly.csv",
-      "horizon_12h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/horizon_12h.csv",
-      "horizon_24h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/horizon_24h.csv",
-      "horizon_6h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/horizon_6h.csv",
-      "horizon_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/horizon_summary.csv",
-      "hourly_features": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/hourly_features.csv",
-      "lab_events": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/lab_events.csv",
-      "lab_hourly": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/lab_hourly.csv",
-      "resolved_chart_itemids": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/resolved_chart_itemids.csv",
-      "resolved_lab_itemids": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/04_feature_engineering/resolved_lab_itemids.csv"
+      "chart_events": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/chart_events.csv",
+      "chart_hourly": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/chart_hourly.csv",
+      "horizon_12h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/horizon_12h.csv",
+      "horizon_24h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/horizon_24h.csv",
+      "horizon_6h": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/horizon_6h.csv",
+      "horizon_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/horizon_summary.csv",
+      "hourly_features": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/hourly_features.csv",
+      "lab_events": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/lab_events.csv",
+      "lab_hourly": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/lab_hourly.csv",
+      "resolved_chart_itemids": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/resolved_chart_itemids.csv",
+      "resolved_lab_itemids": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/04_feature_engineering/resolved_lab_itemids.csv"
     }
   },
   "stage": "04_feature_engineering"

@@ -204,7 +204,9 @@
       "batch_size": 16,
       "device": "auto",
       "dropout": 0.2,
-      "epochs": 10,
+      "early_stopping_patience": 5,
+      "epochs": 20,
+      "fusion_num_heads": 4,
       "fusion_strategies": [
         "early_fusion",
         "late_fusion",
@@ -217,8 +219,15 @@
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
-      "structured_encoder": "gru",
+      "min_learning_rate": 5e-05,
+      "scheduler": "cosine",
+      "structured_encoder": "transformer",
+      "structured_num_heads": 4,
+      "structured_num_layers": 2,
       "text_embedding_dim": 768,
+      "text_num_heads": 4,
+      "text_num_layers": 1,
+      "threshold_selection_metric": "f1",
       "weight_decay": 0.0001
     },
     "notes": {
@@ -238,7 +247,7 @@
       "logs_dir": "results/logs",
       "manifests_dir": "results/manifests",
       "processed_data_dir": "results/processed",
-      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
       "raw_data_dir": "data/raw",
       "tables_dir": "results/tables"
     },
@@ -360,7 +369,7 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-03-25T17:54:51.164239+00:00",
+  "created_at_utc": "2026-04-02T16:45:06.746720+00:00",
   "extra": {
     "coverage_summary": [
       {
@@ -387,14 +396,14 @@
     ],
     "preferred_text_model": "emilyalsentzer/Bio_ClinicalBERT",
     "saved_artifacts": {
-      "filtered_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/filtered_notes.csv",
-      "horizon_12h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_12h_note_windows.csv",
-      "horizon_12h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_12h_notes.csv",
-      "horizon_24h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_24h_note_windows.csv",
-      "horizon_24h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_24h_notes.csv",
-      "horizon_6h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_6h_note_windows.csv",
-      "horizon_6h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/horizon_6h_notes.csv",
-      "note_coverage_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/05_text_processing/note_coverage_summary.csv"
+      "filtered_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/filtered_notes.csv",
+      "horizon_12h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_12h_note_windows.csv",
+      "horizon_12h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_12h_notes.csv",
+      "horizon_24h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_24h_note_windows.csv",
+      "horizon_24h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_24h_notes.csv",
+      "horizon_6h_note_windows": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_6h_note_windows.csv",
+      "horizon_6h_notes": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/horizon_6h_notes.csv",
+      "note_coverage_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/05_text_processing/note_coverage_summary.csv"
     }
   },
   "stage": "05_text_processing"

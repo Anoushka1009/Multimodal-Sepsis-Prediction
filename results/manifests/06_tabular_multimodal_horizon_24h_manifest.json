@@ -9,6 +9,7 @@
         "vitals_labs",
         "structured_full"
       ],
+      "model_source": "tabular_multimodal",
       "planned_variants": [
         "vitals_only",
         "vitals_labs",
@@ -129,6 +130,14 @@
           "non invasive blood pressure diastolic",
           "diastolic blood pressure"
         ],
+        "fio2": [
+          "fio2",
+          "inspired o2 fraction"
+        ],
+        "gcs_total": [
+          "gcs total",
+          "glasgow coma scale total"
+        ],
         "glucose_chart": [
           "glucose"
         ],
@@ -160,6 +169,12 @@
         "temperature_c": [
           "temperature c",
           "temp c"
+        ],
+        "urine_output": [
+          "urine output",
+          "urine out",
+          "urine out foley",
+          "urine out void"
         ]
       },
       "history_window_hours": 48,
@@ -201,7 +216,7 @@
       "min_history_hours": 6
     },
     "multimodal": {
-      "batch_size": 16,
+      "batch_size": 2,
       "device": "auto",
       "dropout": 0.2,
       "early_stopping_patience": 5,
@@ -215,7 +230,7 @@
       ],
       "gradient_clip_norm": 1.0,
       "hidden_dim": 128,
-      "learning_rate": 0.0005,
+      "learning_rate": 0.0003,
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
@@ -224,7 +239,21 @@
       "structured_encoder": "transformer",
       "structured_num_heads": 4,
       "structured_num_layers": 2,
+      "structured_summary": {
+        "aggregations": [
+          "mean",
+          "min",
+          "max",
+          "last"
+        ],
+        "enabled": true,
+        "include_missingness": true
+      },
       "text_embedding_dim": 768,
+      "text_encoder_mode": "bert_finetune",
+      "text_finetune_learning_rate": 2e-05,
+      "text_finetune_unfrozen_layers": 1,
+      "text_gradient_checkpointing": true,
       "text_num_heads": 4,
       "text_num_layers": 1,
       "threshold_selection_metric": "f1",
@@ -337,10 +366,45 @@
         "dobutamine"
       ]
     },
+    "tabular_multimodal": {
+      "clinical_event_lookback_hours": 48,
+      "include_clinical_event_features": true,
+      "include_missingness": true,
+      "include_note_metadata": true,
+      "include_static_categoricals": true,
+      "meta_model": "logistic_regression",
+      "models": [
+        "xgboost_text_augmented",
+        "stacked_xgboost_notes"
+      ],
+      "note_model": "logistic_regression",
+      "output_stage": "06_baseline_models",
+      "stacked_decision_threshold": 0.5,
+      "structured_aggregations": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "text_embedding_aggregations": [
+        "mean",
+        "closest"
+      ],
+      "threshold_selection_metric": "f1"
+    },
     "text_processing": {
       "aggregation_window_hours": 6,
       "embedding_backend": "auto",
       "embedding_batch_size": 8,
+      "keyword_masking": {
+        "enabled": true,
+        "keywords": [
+          "septic shock",
+          "septic",
+          "sepsis"
+        ],
+        "replacement": " "
+      },
       "local_files_only": false,
       "max_note_characters": 4000,
       "max_notes_per_stay": 200,
@@ -369,44 +433,20 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-04-02T05:39:39.179782+00:00",
+  "created_at_utc": "2026-04-04T14:56:56.477087+00:00",
   "extra": {
-    "demographics_summary": {
-      "admission_count": 58976,
-      "ethnicity_distribution": {
-        "ASIAN": 1509,
-        "ASIAN - CHINESE": 277,
-        "BLACK/AFRICAN AMERICAN": 5440,
-        "HISPANIC OR LATINO": 1696,
-        "HISPANIC/LATINO - PUERTO RICAN": 232,
-        "OTHER": 1512,
-        "PATIENT DECLINED TO ANSWER": 559,
-        "UNABLE TO OBTAIN": 814,
-        "UNKNOWN/NOT SPECIFIED": 4523,
-        "WHITE": 40996
-      },
-      "gender_distribution": {
-        "F": 26026,
-        "M": 32950
-      },
-      "patient_count": 46520
-    },
+    "dataset_name": "horizon_24h",
+    "device": "cuda",
     "saved_artifacts": {
-      "missingness_sample": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/missingness_sample.csv",
-      "note_category_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/note_category_summary.csv",
-      "schema_preview": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/schema_preview.csv",
-      "table_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/table_summary.csv"
+      "horizon_24h_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_24h_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_tabular_multimodal_feature_manifest.csv",
+      "horizon_24h_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_tabular_multimodal_results.csv",
+      "horizon_24h_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_tabular_multimodal_stay_index.csv",
+      "horizon_24h_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_tabular_multimodal_summary.csv",
+      "horizon_24h_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_xgboost_text_augmented_test_predictions.csv",
+      "horizon_24h_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/06_baseline_models/horizon_24h_xgboost_text_augmented_val_predictions.csv"
     },
-    "table_names_profiled": [
-      "PATIENTS.csv",
-      "ADMISSIONS.csv",
-      "ICUSTAYS.csv",
-      "NOTEEVENTS.csv",
-      "CHARTEVENTS.csv",
-      "LABEVENTS.csv",
-      "PRESCRIPTIONS.csv",
-      "MICROBIOLOGYEVENTS.csv"
-    ]
+    "text_embedding_backend": "transformer:emilyalsentzer/Bio_ClinicalBERT"
   },
-  "stage": "02_data_exploration"
+  "stage": "06_tabular_multimodal"
 }

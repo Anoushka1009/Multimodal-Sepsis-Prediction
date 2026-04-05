@@ -9,6 +9,7 @@
         "vitals_labs",
         "structured_full"
       ],
+      "model_source": "tabular_multimodal",
       "planned_variants": [
         "vitals_only",
         "vitals_labs",
@@ -16,6 +17,61 @@
         "text_only",
         "multimodal_fusion"
       ]
+    },
+    "aligned_transformer_xgboost": {
+      "aligned_dim": 256,
+      "batch_size": 8,
+      "clinical_event_lookback_hours": 48,
+      "dropout": 0.2,
+      "early_stopping_patience": 4,
+      "epochs": 10,
+      "gradient_clip_norm": 1.0,
+      "hidden_dim": 128,
+      "include_clinical_event_features": true,
+      "include_missingness": true,
+      "include_note_metadata": true,
+      "include_static_categoricals": true,
+      "learning_rate": 0.0003,
+      "max_structured_steps": 48,
+      "max_text_windows": 8,
+      "max_tokens_per_window": 128,
+      "min_learning_rate": 5e-05,
+      "output_stage": "10_aligned_transformer_xgboost",
+      "scheduler": "cosine",
+      "structured_aggregations": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "structured_encoder": "transformer",
+      "text_embedding_dim": 768,
+      "text_encoder_mode": "frozen_embedding",
+      "threshold_selection_metric": "f1",
+      "weight_decay": 0.0001,
+      "xgboost_model": "xgboost"
+    },
+    "aligned_transformer_xgboost_ablation": {
+      "default_horizons": [
+        6,
+        12,
+        24
+      ],
+      "device": "auto",
+      "executable_variants": [
+        "vitals_only",
+        "vitals_labs",
+        "structured_full"
+      ],
+      "output_stage": "13_aligned_transformer_xgboost_ablation",
+      "planned_variants": [
+        "vitals_only",
+        "vitals_labs",
+        "structured_full"
+      ]
+    },
+    "aligned_transformer_xgboost_evaluation": {
+      "output_stage": "12_aligned_transformer_xgboost_evaluation"
     },
     "baselines": {
       "imputation_strategy": "median",
@@ -129,6 +185,14 @@
           "non invasive blood pressure diastolic",
           "diastolic blood pressure"
         ],
+        "fio2": [
+          "fio2",
+          "inspired o2 fraction"
+        ],
+        "gcs_total": [
+          "gcs total",
+          "glasgow coma scale total"
+        ],
         "glucose_chart": [
           "glucose"
         ],
@@ -160,6 +224,12 @@
         "temperature_c": [
           "temperature c",
           "temp c"
+        ],
+        "urine_output": [
+          "urine output",
+          "urine out",
+          "urine out foley",
+          "urine out void"
         ]
       },
       "history_window_hours": 48,
@@ -201,7 +271,7 @@
       "min_history_hours": 6
     },
     "multimodal": {
-      "batch_size": 16,
+      "batch_size": 2,
       "device": "auto",
       "dropout": 0.2,
       "early_stopping_patience": 5,
@@ -215,7 +285,7 @@
       ],
       "gradient_clip_norm": 1.0,
       "hidden_dim": 128,
-      "learning_rate": 0.0005,
+      "learning_rate": 0.0003,
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
@@ -224,7 +294,21 @@
       "structured_encoder": "transformer",
       "structured_num_heads": 4,
       "structured_num_layers": 2,
+      "structured_summary": {
+        "aggregations": [
+          "mean",
+          "min",
+          "max",
+          "last"
+        ],
+        "enabled": true,
+        "include_missingness": true
+      },
       "text_embedding_dim": 768,
+      "text_encoder_mode": "bert_finetune",
+      "text_finetune_learning_rate": 2e-05,
+      "text_finetune_unfrozen_layers": 1,
+      "text_gradient_checkpointing": true,
       "text_num_heads": 4,
       "text_num_layers": 1,
       "threshold_selection_metric": "f1",
@@ -337,10 +421,45 @@
         "dobutamine"
       ]
     },
+    "tabular_multimodal": {
+      "clinical_event_lookback_hours": 48,
+      "include_clinical_event_features": true,
+      "include_missingness": true,
+      "include_note_metadata": true,
+      "include_static_categoricals": true,
+      "meta_model": "logistic_regression",
+      "models": [
+        "xgboost_text_augmented",
+        "stacked_xgboost_notes"
+      ],
+      "note_model": "logistic_regression",
+      "output_stage": "06_baseline_models",
+      "stacked_decision_threshold": 0.5,
+      "structured_aggregations": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "text_embedding_aggregations": [
+        "mean",
+        "closest"
+      ],
+      "threshold_selection_metric": "f1"
+    },
     "text_processing": {
       "aggregation_window_hours": 6,
       "embedding_backend": "auto",
       "embedding_batch_size": 8,
+      "keyword_masking": {
+        "enabled": true,
+        "keywords": [
+          "septic shock",
+          "septic",
+          "sepsis"
+        ],
+        "replacement": " "
+      },
       "local_files_only": false,
       "max_note_characters": 4000,
       "max_notes_per_stay": 200,
@@ -369,44 +488,31 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-04-02T05:39:39.179782+00:00",
+  "created_at_utc": "2026-04-04T20:02:36.439185+00:00",
   "extra": {
-    "demographics_summary": {
-      "admission_count": 58976,
-      "ethnicity_distribution": {
-        "ASIAN": 1509,
-        "ASIAN - CHINESE": 277,
-        "BLACK/AFRICAN AMERICAN": 5440,
-        "HISPANIC OR LATINO": 1696,
-        "HISPANIC/LATINO - PUERTO RICAN": 232,
-        "OTHER": 1512,
-        "PATIENT DECLINED TO ANSWER": 559,
-        "UNABLE TO OBTAIN": 814,
-        "UNKNOWN/NOT SPECIFIED": 4523,
-        "WHITE": 40996
-      },
-      "gender_distribution": {
-        "F": 26026,
-        "M": 32950
-      },
-      "patient_count": 46520
-    },
-    "saved_artifacts": {
-      "missingness_sample": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/missingness_sample.csv",
-      "note_category_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/note_category_summary.csv",
-      "schema_preview": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/schema_preview.csv",
-      "table_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/tables/02_data_exploration/table_summary.csv"
-    },
-    "table_names_profiled": [
-      "PATIENTS.csv",
-      "ADMISSIONS.csv",
-      "ICUSTAYS.csv",
-      "NOTEEVENTS.csv",
-      "CHARTEVENTS.csv",
-      "LABEVENTS.csv",
-      "PRESCRIPTIONS.csv",
-      "MICROBIOLOGYEVENTS.csv"
-    ]
+    "dataset_name": "horizon_6h",
+    "model_family": "tabular_xgboost",
+    "model_names": [
+      "xgboost_text_augmented",
+      "stacked_xgboost_notes"
+    ],
+    "overfit_model_name": "xgboost_text_augmented",
+    "saved_paths": {
+      "calibration_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/calibration_curves.png",
+      "confusion_matrices": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/confusion_matrices.png",
+      "cross_family_calibration_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/cross_family_calibration_curves.png",
+      "cross_family_confusion_matrices": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/cross_family_confusion_matrices.png",
+      "cross_family_metric_comparison": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/cross_family_metric_comparison.png",
+      "cross_family_pr_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/cross_family_pr_curves.png",
+      "cross_family_roc_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/cross_family_roc_curves.png",
+      "metric_comparison": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/metric_comparison.png",
+      "pr_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/pr_curves.png",
+      "roc_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/roc_curves.png",
+      "split_calibration_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/split_calibration_curves.png",
+      "split_confusion_matrices": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/split_confusion_matrices.png",
+      "split_pr_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/split_pr_curves.png",
+      "split_roc_curves": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/figures/11_custom_model_visualization/horizon_6h/split_roc_curves.png"
+    }
   },
-  "stage": "02_data_exploration"
+  "stage": "11_custom_model_visualization"
 }

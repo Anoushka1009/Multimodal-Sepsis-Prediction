@@ -9,6 +9,7 @@
         "vitals_labs",
         "structured_full"
       ],
+      "model_source": "tabular_multimodal",
       "planned_variants": [
         "vitals_only",
         "vitals_labs",
@@ -129,6 +130,14 @@
           "non invasive blood pressure diastolic",
           "diastolic blood pressure"
         ],
+        "fio2": [
+          "fio2",
+          "inspired o2 fraction"
+        ],
+        "gcs_total": [
+          "gcs total",
+          "glasgow coma scale total"
+        ],
         "glucose_chart": [
           "glucose"
         ],
@@ -160,6 +169,12 @@
         "temperature_c": [
           "temperature c",
           "temp c"
+        ],
+        "urine_output": [
+          "urine output",
+          "urine out",
+          "urine out foley",
+          "urine out void"
         ]
       },
       "history_window_hours": 48,
@@ -201,10 +216,12 @@
       "min_history_hours": 6
     },
     "multimodal": {
-      "batch_size": 16,
+      "batch_size": 2,
       "device": "auto",
       "dropout": 0.2,
-      "epochs": 10,
+      "early_stopping_patience": 5,
+      "epochs": 20,
+      "fusion_num_heads": 4,
       "fusion_strategies": [
         "early_fusion",
         "late_fusion",
@@ -213,12 +230,33 @@
       ],
       "gradient_clip_norm": 1.0,
       "hidden_dim": 128,
-      "learning_rate": 0.0005,
+      "learning_rate": 0.0003,
       "max_structured_steps": 48,
       "max_text_windows": 8,
       "max_tokens_per_window": 128,
-      "structured_encoder": "gru",
+      "min_learning_rate": 5e-05,
+      "scheduler": "cosine",
+      "structured_encoder": "transformer",
+      "structured_num_heads": 4,
+      "structured_num_layers": 2,
+      "structured_summary": {
+        "aggregations": [
+          "mean",
+          "min",
+          "max",
+          "last"
+        ],
+        "enabled": true,
+        "include_missingness": true
+      },
       "text_embedding_dim": 768,
+      "text_encoder_mode": "bert_finetune",
+      "text_finetune_learning_rate": 2e-05,
+      "text_finetune_unfrozen_layers": 1,
+      "text_gradient_checkpointing": true,
+      "text_num_heads": 4,
+      "text_num_layers": 1,
+      "threshold_selection_metric": "f1",
       "weight_decay": 0.0001
     },
     "notes": {
@@ -238,7 +276,7 @@
       "logs_dir": "results/logs",
       "manifests_dir": "results/manifests",
       "processed_data_dir": "results/processed",
-      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main",
+      "project_root": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy",
       "raw_data_dir": "data/raw",
       "tables_dir": "results/tables"
     },
@@ -328,10 +366,45 @@
         "dobutamine"
       ]
     },
+    "tabular_multimodal": {
+      "clinical_event_lookback_hours": 48,
+      "include_clinical_event_features": true,
+      "include_missingness": true,
+      "include_note_metadata": true,
+      "include_static_categoricals": true,
+      "meta_model": "logistic_regression",
+      "models": [
+        "xgboost_text_augmented",
+        "stacked_xgboost_notes"
+      ],
+      "note_model": "logistic_regression",
+      "output_stage": "06_baseline_models",
+      "stacked_decision_threshold": 0.5,
+      "structured_aggregations": [
+        "mean",
+        "min",
+        "max",
+        "last"
+      ],
+      "text_embedding_aggregations": [
+        "mean",
+        "closest"
+      ],
+      "threshold_selection_metric": "f1"
+    },
     "text_processing": {
       "aggregation_window_hours": 6,
       "embedding_backend": "auto",
       "embedding_batch_size": 8,
+      "keyword_masking": {
+        "enabled": true,
+        "keywords": [
+          "septic shock",
+          "septic",
+          "sepsis"
+        ],
+        "replacement": " "
+      },
       "local_files_only": false,
       "max_note_characters": 4000,
       "max_notes_per_stay": 200,
@@ -360,32 +433,77 @@
       "val_size": 0.15
     }
   },
-  "created_at_utc": "2026-03-25T21:17:33.131937+00:00",
+  "created_at_utc": "2026-04-04T15:43:01.547058+00:00",
   "extra": {
-    "ablation_result_rows": 9,
+    "ablation_result_rows": 27,
     "multimodal_plan_available": true,
     "saved_artifacts": {
-      "ablation_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/ablation_results.csv",
-      "fusion_strategy_table": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/fusion_strategy_table.csv",
-      "horizon_12h_structured_full_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_structured_full_logistic_regression_predictions.csv",
-      "horizon_12h_structured_full_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_structured_full_tabular.csv",
-      "horizon_12h_vitals_labs_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_logistic_regression_predictions.csv",
-      "horizon_12h_vitals_labs_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_tabular.csv",
-      "horizon_12h_vitals_only_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_vitals_only_logistic_regression_predictions.csv",
-      "horizon_12h_vitals_only_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_12h_vitals_only_tabular.csv",
-      "horizon_24h_structured_full_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_structured_full_logistic_regression_predictions.csv",
-      "horizon_24h_structured_full_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_structured_full_tabular.csv",
-      "horizon_24h_vitals_labs_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_logistic_regression_predictions.csv",
-      "horizon_24h_vitals_labs_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_tabular.csv",
-      "horizon_24h_vitals_only_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_vitals_only_logistic_regression_predictions.csv",
-      "horizon_24h_vitals_only_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_24h_vitals_only_tabular.csv",
-      "horizon_6h_structured_full_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_structured_full_logistic_regression_predictions.csv",
-      "horizon_6h_structured_full_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_structured_full_tabular.csv",
-      "horizon_6h_vitals_labs_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_logistic_regression_predictions.csv",
-      "horizon_6h_vitals_labs_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_tabular.csv",
-      "horizon_6h_vitals_only_logistic_regression_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_vitals_only_logistic_regression_predictions.csv",
-      "horizon_6h_vitals_only_tabular": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/horizon_6h_vitals_only_tabular.csv",
-      "planned_ablation_matrix": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main/results/processed/09_ablation_experiments/planned_ablation_matrix.csv"
+      "ablation_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/ablation_results.csv",
+      "fusion_strategy_table": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/fusion_strategy_table.csv",
+      "horizon_12h_structured_full_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_12h_structured_full_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_tabular_multimodal_feature_manifest.csv",
+      "horizon_12h_structured_full_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_tabular_multimodal_results.csv",
+      "horizon_12h_structured_full_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_tabular_multimodal_stay_index.csv",
+      "horizon_12h_structured_full_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_tabular_multimodal_summary.csv",
+      "horizon_12h_structured_full_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_xgboost_text_augmented_test_predictions.csv",
+      "horizon_12h_structured_full_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_structured_full_xgboost_text_augmented_val_predictions.csv",
+      "horizon_12h_vitals_labs_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_12h_vitals_labs_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_tabular_multimodal_feature_manifest.csv",
+      "horizon_12h_vitals_labs_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_tabular_multimodal_results.csv",
+      "horizon_12h_vitals_labs_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_tabular_multimodal_stay_index.csv",
+      "horizon_12h_vitals_labs_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_tabular_multimodal_summary.csv",
+      "horizon_12h_vitals_labs_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_xgboost_text_augmented_test_predictions.csv",
+      "horizon_12h_vitals_labs_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_labs_xgboost_text_augmented_val_predictions.csv",
+      "horizon_12h_vitals_only_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_12h_vitals_only_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_tabular_multimodal_feature_manifest.csv",
+      "horizon_12h_vitals_only_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_tabular_multimodal_results.csv",
+      "horizon_12h_vitals_only_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_tabular_multimodal_stay_index.csv",
+      "horizon_12h_vitals_only_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_tabular_multimodal_summary.csv",
+      "horizon_12h_vitals_only_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_xgboost_text_augmented_test_predictions.csv",
+      "horizon_12h_vitals_only_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_12h_vitals_only_xgboost_text_augmented_val_predictions.csv",
+      "horizon_24h_structured_full_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_24h_structured_full_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_tabular_multimodal_feature_manifest.csv",
+      "horizon_24h_structured_full_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_tabular_multimodal_results.csv",
+      "horizon_24h_structured_full_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_tabular_multimodal_stay_index.csv",
+      "horizon_24h_structured_full_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_tabular_multimodal_summary.csv",
+      "horizon_24h_structured_full_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_xgboost_text_augmented_test_predictions.csv",
+      "horizon_24h_structured_full_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_structured_full_xgboost_text_augmented_val_predictions.csv",
+      "horizon_24h_vitals_labs_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_24h_vitals_labs_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_tabular_multimodal_feature_manifest.csv",
+      "horizon_24h_vitals_labs_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_tabular_multimodal_results.csv",
+      "horizon_24h_vitals_labs_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_tabular_multimodal_stay_index.csv",
+      "horizon_24h_vitals_labs_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_tabular_multimodal_summary.csv",
+      "horizon_24h_vitals_labs_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_xgboost_text_augmented_test_predictions.csv",
+      "horizon_24h_vitals_labs_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_labs_xgboost_text_augmented_val_predictions.csv",
+      "horizon_24h_vitals_only_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_24h_vitals_only_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_tabular_multimodal_feature_manifest.csv",
+      "horizon_24h_vitals_only_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_tabular_multimodal_results.csv",
+      "horizon_24h_vitals_only_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_tabular_multimodal_stay_index.csv",
+      "horizon_24h_vitals_only_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_tabular_multimodal_summary.csv",
+      "horizon_24h_vitals_only_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_xgboost_text_augmented_test_predictions.csv",
+      "horizon_24h_vitals_only_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_24h_vitals_only_xgboost_text_augmented_val_predictions.csv",
+      "horizon_6h_structured_full_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_6h_structured_full_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_tabular_multimodal_feature_manifest.csv",
+      "horizon_6h_structured_full_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_tabular_multimodal_results.csv",
+      "horizon_6h_structured_full_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_tabular_multimodal_stay_index.csv",
+      "horizon_6h_structured_full_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_tabular_multimodal_summary.csv",
+      "horizon_6h_structured_full_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_xgboost_text_augmented_test_predictions.csv",
+      "horizon_6h_structured_full_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_structured_full_xgboost_text_augmented_val_predictions.csv",
+      "horizon_6h_vitals_labs_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_6h_vitals_labs_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_tabular_multimodal_feature_manifest.csv",
+      "horizon_6h_vitals_labs_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_tabular_multimodal_results.csv",
+      "horizon_6h_vitals_labs_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_tabular_multimodal_stay_index.csv",
+      "horizon_6h_vitals_labs_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_tabular_multimodal_summary.csv",
+      "horizon_6h_vitals_labs_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_xgboost_text_augmented_test_predictions.csv",
+      "horizon_6h_vitals_labs_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_labs_xgboost_text_augmented_val_predictions.csv",
+      "horizon_6h_vitals_only_stacked_xgboost_notes_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_stacked_xgboost_notes_test_predictions.csv",
+      "horizon_6h_vitals_only_tabular_multimodal_feature_manifest": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_tabular_multimodal_feature_manifest.csv",
+      "horizon_6h_vitals_only_tabular_multimodal_results": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_tabular_multimodal_results.csv",
+      "horizon_6h_vitals_only_tabular_multimodal_stay_index": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_tabular_multimodal_stay_index.csv",
+      "horizon_6h_vitals_only_tabular_multimodal_summary": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_tabular_multimodal_summary.csv",
+      "horizon_6h_vitals_only_xgboost_text_augmented_test_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_xgboost_text_augmented_test_predictions.csv",
+      "horizon_6h_vitals_only_xgboost_text_augmented_val_predictions": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/horizon_6h_vitals_only_xgboost_text_augmented_val_predictions.csv",
+      "planned_ablation_matrix": "/home/sra/shankari/Multimodal-Sepsis-Prediction-main-copy/results/processed/09_ablation_experiments/planned_ablation_matrix.csv"
     }
   },
   "stage": "09_ablation_experiments"
