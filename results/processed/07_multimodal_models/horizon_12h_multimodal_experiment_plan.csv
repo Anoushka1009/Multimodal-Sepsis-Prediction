@@ -1,5 +1,5 @@
-dataset_name,structured_encoder,fusion_strategy,text_embedding_backend,text_embedding_dim,n_train,n_val,n_test,device
-horizon_12h,gru,early_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda
-horizon_12h,gru,late_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda
-horizon_12h,gru,gated_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda
-horizon_12h,gru,cross_modal_attention,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda
+dataset_name,structured_encoder,fusion_strategy,text_embedding_backend,text_embedding_dim,n_train,n_val,n_test,device,scheduler,threshold_selection_metric
+horizon_12h,transformer,early_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda,cosine,f1
+horizon_12h,transformer,late_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda,cosine,f1
+horizon_12h,transformer,gated_fusion,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda,cosine,f1
+horizon_12h,transformer,cross_modal_attention,transformer:emilyalsentzer/Bio_ClinicalBERT,768,25383,5431,5527,cuda,cosine,f1
