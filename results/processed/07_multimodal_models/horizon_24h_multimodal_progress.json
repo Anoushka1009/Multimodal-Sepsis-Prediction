@@ -1,0 +1,16 @@
+{
+  "completed_fusion_strategies": [
+    "early_fusion",
+    "late_fusion",
+    "gated_fusion",
+    "cross_modal_attention"
+  ],
+  "current_epoch": 14,
+  "current_fusion_strategy": null,
+  "dataset_name": "horizon_24h",
+  "result_row_count": 8,
+  "status": "completed",
+  "strategy_count": 4,
+  "strategy_index": 4,
+  "total_epochs": 20
+}
