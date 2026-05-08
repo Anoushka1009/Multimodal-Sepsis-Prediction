@@ -1,11 +1,6 @@
 # Multimodal Early Sepsis Detection with MIMIC-III
 
-This repository is a research-grade project scaffold for early sepsis detection from multimodal ICU data in MIMIC-III. It now supports both local GPU workflows and Google Colab. It is designed to support:
-
-- final-year engineering project demonstrations
-- reproducible machine learning experiments
-- research-paper-ready figures, tables, and drafts
-- modular extension from data setup through multimodal modeling and explainability
+This repository is a research-grade project scaffold for early sepsis detection from multimodal ICU data in MIMIC-III. It supports both local GPU workflows and Google Colab.
 
 ## Project Roadmap
 
@@ -93,14 +88,6 @@ The implementation is intentionally staged notebook-by-notebook so the pipeline 
    - attention visualization for notes
    - temporal feature importance analysis
 
-### Phase 9: Paper Support
-
-1. paper outline
-2. methodology draft
-3. experimental setup draft
-4. results draft
-5. reusable paper-ready tables and figures
-
 ## Design Decisions
 
 - The repository is organized around reproducible stages rather than a single monolithic notebook.
@@ -148,24 +135,17 @@ multimodal-early-sepsis/
 ### Local Jupyter / GPU machine
 
 1. Create an environment and install dependencies with `pip install -r requirements.txt`.
-2. Start Jupyter from anywhere inside the repository. The notebooks now resolve the project root automatically, so they no longer depend on Colab paths.
+2. Start Jupyter from anywhere inside the repository. The notebooks resolve the project root automatically, so they do not depend on Colab paths.
 3. Run the notebooks in order from `01_dataset_setup.ipynb` through `10_explainability.ipynb`.
 4. Put the MIMIC-III zip file somewhere under the repository, or set `ZIP_PATH` manually in `01_dataset_setup.ipynb`.
 5. Use `notebooks/07_multimodal_models.ipynb` to train the multimodal model locally on the GPU.
 6. Or train without opening a notebook: `python scripts/train_multimodal_local.py --device cuda`
 
-### Google Colab
-
-1. Open `notebooks/01_dataset_setup.ipynb` in Google Colab.
-2. Mount Google Drive when prompted.
-3. Set the zip path in the notebook or config.
-4. Unzip the required MIMIC-III tables into the configured project data directory.
-5. Run the validation cell to confirm table availability.
 
 ## Local Runtime Notes
 
-- Notebook startup no longer assumes `/content/...`; it discovers the repository root dynamically.
-- `07_multimodal_models.ipynb` now performs real multimodal training and writes checkpoints under `results/processed/07_multimodal_models/`.
+- Notebook startup discovers the repository root dynamically.
+- `07_multimodal_models.ipynb` performs real multimodal training and writes checkpoints under `results/processed/07_multimodal_models/`.
 - Text embeddings default to `transformers` when the configured model is available. If the transformer weights are unavailable, the code falls back to a deterministic hashing encoder so local training still runs.
 
 ## Streamlit Demo
@@ -184,8 +164,4 @@ The demo lets you select the aligned Transformer + XGBoost horizon and enter cri
 - Random seeds are centralized in config.
 - Intermediate artifacts should be written to `results/intermediate/`.
 - Figures should be written to `figures/`.
-- Every notebook should save a run manifest with config and timestamps.
-
-## Planned Next Step
-
-After dataset setup, the next implementation slice will be `02_data_exploration.ipynb` plus the schema-profiling utilities it depends on.
+- Every notebook has a saved manifest with config and timestamps.
