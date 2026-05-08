@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Dict, Sequence
 
+import joblib
 import numpy as np
 import pandas as pd
 import torch
@@ -614,6 +615,16 @@ def train_aligned_transformer_xgboost(
     ]
 
     xgboost_model.fit(train_X[feature_columns], train_y)
+    xgboost_model_path = output_dir / f"{dataset_name}_aligned_transformer_xgboost_model.joblib"
+    joblib.dump(
+        {
+            "model": xgboost_model,
+            "feature_columns": feature_columns,
+            "model_name": "aligned_transformer_xgboost",
+            "dataset_name": dataset_name,
+        },
+        xgboost_model_path,
+    )
     selection_X = val_X if not val_X.empty else test_X
     selection_y = val_y if not val_y.empty else test_y
     selection_prob = xgboost_model.predict_proba(selection_X[feature_columns])[:, 1]
@@ -693,6 +704,7 @@ def train_aligned_transformer_xgboost(
                 "n_note_metadata_features": int(len(note_metadata_columns)),
                 "n_event_features": int(len(event_feature_columns)),
                 "encoder_checkpoint_path": str(checkpoint_path),
+                "xgboost_model_path": str(xgboost_model_path),
                 "device": str(device),
             }
         ]
@@ -731,6 +743,7 @@ def train_aligned_transformer_xgboost(
             "current_epoch": int(history_rows[-1]["epoch"]) if history_rows else 0,
             "total_epochs": int(epochs),
             "encoder_checkpoint": str(checkpoint_path),
+            "xgboost_model": str(xgboost_model_path),
             "xgboost_threshold": float(xgb_threshold),
             "result_row_count": int(len(hybrid_result_rows)),
         },
@@ -739,6 +752,7 @@ def train_aligned_transformer_xgboost(
     return {
         "artifacts": artifact_tables,
         "checkpoint_path": str(checkpoint_path),
+        "xgboost_model_path": str(xgboost_model_path),
         "device": str(device),
         "text_embedding_backend": prepared.text_embedding_backend,
     }

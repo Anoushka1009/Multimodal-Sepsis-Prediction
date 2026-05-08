@@ -69,6 +69,7 @@ def main() -> None:
             "device": training_output["device"],
             "text_embedding_backend": training_output["text_embedding_backend"],
             "checkpoint_path": training_output["checkpoint_path"],
+            "xgboost_model_path": training_output["xgboost_model_path"],
         },
     )
 

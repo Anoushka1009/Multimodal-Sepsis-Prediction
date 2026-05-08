@@ -5,6 +5,8 @@ matplotlib
 seaborn
 scikit-learn
 xgboost
+joblib
+streamlit
 notebook
 jupyter
 transformers

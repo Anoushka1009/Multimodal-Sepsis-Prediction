@@ -168,6 +168,17 @@ multimodal-early-sepsis/
 - `07_multimodal_models.ipynb` now performs real multimodal training and writes checkpoints under `results/processed/07_multimodal_models/`.
 - Text embeddings default to `transformers` when the configured model is available. If the transformer weights are unavailable, the code falls back to a deterministic hashing encoder so local training still runs.
 
+## Streamlit Demo
+
+A lightweight project demo lives in `streamlit_demo/`. Run it with:
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_demo/streamlit_app.py
+```
+
+The demo lets you select the aligned Transformer + XGBoost horizon and enter critical vitals/labs. The current checkout contains model summaries, manifests, predictions, and encoder checkpoints, but not the serialized final XGBoost estimator, so the app uses a clearly marked clinical-threshold demo score until the model is retrained with the updated artifact-saving code.
+
 ## Reproducibility Notes
 
 - Random seeds are centralized in config.
