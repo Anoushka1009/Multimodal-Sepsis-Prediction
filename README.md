@@ -157,7 +157,7 @@ pip install -r requirements.txt
 streamlit run streamlit_demo/streamlit_app.py
 ```
 
-The demo lets you select the aligned Transformer + XGBoost horizon and enter critical vitals/labs. The current checkout contains model summaries, manifests, predictions, and encoder checkpoints, but not the serialized final XGBoost estimator, so the app uses a clearly marked clinical-threshold demo score until the model is retrained with the updated artifact-saving code.
+The demo lets you select the aligned Transformer + XGBoost horizon and enter critical vitals/labs. The current checkout contains model summaries, manifests, predictions, and encoder checkpoints from an earlier run, but not the serialized final XGBoost estimator, so the app uses a clearly marked clinical-threshold demo score until the model is retrained with the updated artifact-saving code.
 
 ## Reproducibility Notes
 

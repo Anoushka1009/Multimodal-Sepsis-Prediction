@@ -1,6 +1,9 @@
 # Streamlit Sepsis Demo
 
-This demo gives a simple UI for entering critical vitals/labs and selecting the `Aligned Transformer + XGBoost` model horizon.
+This demo gives two UI paths for the `Aligned Transformer + XGBoost` model:
+
+- A manual critical-parameter demo score for simple project walkthroughs.
+- A processed-stay inference mode that reconstructs the saved multimodal feature pipeline for existing stays and runs the serialized combined model end to end.
 
 ## Run
 
@@ -17,7 +20,7 @@ The repository contains aligned-transformer checkpoints, prediction CSVs, summar
 results/processed/10_aligned_transformer_xgboost/
 ```
 
-The final XGBoost estimator was not serialized by the original training function, so this checkout cannot perform exact combined-model inference from the saved artifacts alone. The app therefore runs a clinical-threshold demo score and clearly marks that mode in the UI.
+This checkout contains outputs from an earlier run that wrote summaries, manifests, predictions, and encoder checkpoints, but not the serialized final XGBoost estimator. Until that model artifact is regenerated, the manual critical-threshold demo works, while processed-stay inference remains unavailable.
 
 The training code has been updated to save future combined model artifacts as:
 
@@ -26,6 +29,23 @@ results/processed/10_aligned_transformer_xgboost/horizon_6h_aligned_transformer_
 results/processed/10_aligned_transformer_xgboost/horizon_12h_aligned_transformer_xgboost_model.joblib
 results/processed/10_aligned_transformer_xgboost/horizon_24h_aligned_transformer_xgboost_model.joblib
 ```
+
+If you need to regenerate those artifacts in a network-restricted environment, you can force the offline hashing text backend and retrain a horizon locally:
+
+```bash
+python scripts/train_aligned_transformer_xgboost_local.py \
+  --horizon 24 \
+  --device cpu \
+  --config-override configs/offline_hashing.yaml
+```
+
+That will backfill the missing `joblib` model file, but it will not exactly match the Bio_ClinicalBERT-based research run.
+
+Once the serialized model file is present, the Streamlit app can:
+
+- Score existing processed stays using the full saved feature pipeline.
+- Show the exact prediction probability, thresholded decision, split, and ground-truth label for the selected stay.
+- Keep the manual-entry demo as a separate clearly marked non-model-backed mode.
 
 ## Critical Parameters
 
@@ -49,4 +69,4 @@ These ranges are useful for a project demo because they are commonly sepsis-conc
 
 ## Important Limitation
 
-The full research model uses more than manual critical values: historical structured feature aggregates, text-window embeddings from notes, aligned transformer embeddings, note metadata, and clinical event features. For an exact demo, keep the model artifact plus the preprocessing objects generated from the same training run.
+The full research model uses more than manual critical values: historical structured feature aggregates, text-window embeddings from notes, aligned transformer embeddings, note metadata, and clinical event features. The processed-stay inference mode reconstructs those saved inputs for existing stays, while the manual-entry panel does not.
