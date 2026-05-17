@@ -658,40 +658,9 @@ with st.sidebar:
     selected_model = st.selectbox("Model", ["Aligned Transformer + XGBoost"])
     threshold = get_threshold(int(horizon))
     st.metric("Decision threshold", f"{threshold:.3f}")
-    inference_mode = st.radio(
-        "Inference mode",
-        ["Manual demo score", "Processed stay inference"],
-        index=0,
-    )
 
 paths = artifact_paths(int(horizon))
 model, expected_model_path = maybe_load_serialized_model(int(horizon))
-
-if model is None:
-    st.info(
-        "The combined model metadata is present, but this checkout does not include the serialized final XGBoost "
-        "estimator. The checked-in artifacts look like an earlier run that saved summaries, manifests, predictions, "
-        "and encoder checkpoints without the fitted combined-model object. This screen uses a clinical-threshold "
-        "demo score. Retraining with the current code should create "
-        f"`{expected_model_path.relative_to(PROJECT_ROOT)}` for true model-backed inference."
-    )
-else:
-    st.success(f"Found serialized model artifact: `{expected_model_path.relative_to(PROJECT_ROOT)}`")
-    st.info(
-        "The app can now run exact combined-model inference for existing processed stays. The manual-entry screen "
-        "below still uses the clinical-threshold demo score because a few typed values are not enough to recreate "
-        "the full multimodal feature pipeline."
-    )
-
-if inference_mode == "Processed stay inference":
-    if model is None:
-        st.warning(
-            "Processed stay inference needs the serialized combined-model artifact. Retrain first to create "
-            f"`{expected_model_path.relative_to(PROJECT_ROOT)}`."
-        )
-    else:
-        display_processed_stay_inference(int(horizon))
-    st.divider()
 
 left, right = st.columns([1.3, 1.0], gap="large")
 
